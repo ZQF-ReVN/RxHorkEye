@@ -4,6 +4,7 @@ ACV1 Engine Dump Extract Read FileHook
 # Usage
 This tool has three functions.  
 ```c
+//Attention!! Only one of these functions can be called at a time
 SetFileDump();      //Extracting files from a running game  
 SetFileExtract();   //Extracting files by filename  
 SetFileHook();      //Read files without repack  

@@ -58,7 +58,7 @@ BOOL ACV1FileWrite(LPCSTR lpFileName, PBYTE* FileBuffer, PDWORD dwFileSize)
 	}
 }
 
-DWORD AVC1FileDump(LPCSTR lpFileName, PBYTE* FileBuffer, PDWORD dwFileSize, PDWORD dwUnknow)
+DWORD ACV1FileDump(LPCSTR lpFileName, PBYTE* FileBuffer, PDWORD dwFileSize, PDWORD dwUnknow)
 {
 	DWORD result = rawLoadFile(lpFileName, FileBuffer, dwFileSize, dwUnknow);
 
@@ -105,7 +105,7 @@ VOID ACV1FileExtract()
 	}
 }
 
-DWORD AVC1FileHook(LPCSTR lpFileName, PBYTE* FileBuffer, PDWORD dwFileSize, PDWORD dwUnknow)
+DWORD ACV1FileHook(LPCSTR lpFileName, PBYTE* FileBuffer, PDWORD dwFileSize, PDWORD dwUnknow)
 {
 	std::string filePath = BackSlash(lpFileName);
 	if (FileExistA(filePath))
@@ -123,7 +123,7 @@ VOID SetFileDump()
 
 	g_strCurrentPath = GetCurrentDirectoryPath() + g_strDumpFolder;
 	CreateListFile(g_strDumpFileNameList.c_str());
-	DetourAttachFunc(&rawLoadFile, AVC1FileDump);
+	DetourAttachFunc(&rawLoadFile, ACV1FileDump);
 }
 
 //Extracting files by filename
@@ -138,5 +138,5 @@ VOID SetFileExtract()
 //Read files without repack
 VOID SetFileHook()
 {
-	DetourAttachFunc(&rawLoadFile, AVC1FileHook);
+	DetourAttachFunc(&rawLoadFile, ACV1FileHook);
 }

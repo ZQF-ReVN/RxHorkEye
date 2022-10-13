@@ -2,7 +2,7 @@
 ACV1 Engine Dump Extract Read FileHook
 
 # Usage
-This tool has three functions.  
+This tool has three functions.  [GuideVideoHere](https://www.youtube.com/watch?v=t9PzEKXvcJs)
 ```c
 //Attention!! Only one of these functions can be called at a time
 SetFileDump();      //Extracting files from a running game  

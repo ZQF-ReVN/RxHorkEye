@@ -7,8 +7,19 @@ std::string g_strExtractFolder = "\\Extract\\";
 std::string g_strFileHookFolder = ".\\FileHook\\";
 std::string g_strDumpFileNameList = "ACV1FileNameList.txt";
 
+//Game Engine Export This Func
 typedef DWORD(CDECL* pLoadFile)(LPCSTR lpFileName, PBYTE* FileBuffer, PDWORD dwFileSize, PDWORD dwUnknow);
 pLoadFile rawLoadFile = (pLoadFile)GetProcAddress(GetModuleHandleW(NULL), "loadFile");
+
+//To Find This Func Search String Script.dat
+typedef DWORD(CDECL* pLoadScript)(DWORD dwHashLow, DWORD dwHashHigh, PBYTE* ppBuffer);
+pLoadScript rawLoadScript = (pLoadScript)0x004CE9B0;
+
+//This Func Is Called In LoadScript After fread();.
+//Rawbuffer Will Be Released When The Func Is Complete By Call free();.
+//LoadScript -> fopen -> fseek -> malloc -> fread -> fclose -> DecScript -> free
+typedef DWORD(CDECL* pDecScript)(PBYTE pDecBuffer, PDWORD pdwDecSize, PBYTE pRawBuffer, DWORD dwRawSize);
+pDecScript rawDecScript = (pDecScript)0x0052AC00;
 
 VOID CreateListFile(LPCSTR lpFileNameList)
 {
@@ -82,8 +93,6 @@ VOID ACV1FileExtract()
 	DWORD dwUnknow = 0;
 	std::string fileName;
 
-	buffer = (PBYTE)VirtualAlloc(NULL, 0x1000 * 0x2000, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
-
 	while (true)
 	{
 		std::cout << "FileName:";
@@ -105,6 +114,10 @@ VOID ACV1FileExtract()
 	}
 }
 
+//for this engine if can't find the hash value of filename in pack, will read the file in game directory.
+//An error will be reported if the file does not exist in the directory either.
+//So I changed the file name path so that the engine could not search for the corresponding file in pack
+//and thus go to the directory to read the file
 DWORD ACV1FileHook(LPCSTR lpFileName, PBYTE* FileBuffer, PDWORD dwFileSize, PDWORD dwUnknow)
 {
 	std::string filePath = BackSlash(lpFileName);

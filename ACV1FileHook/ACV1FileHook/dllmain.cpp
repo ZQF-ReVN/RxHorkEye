@@ -5,7 +5,8 @@ VOID Start()
 	//Attention!! Only one of these functions can be called at a time
 	//SetFileDump();
 	//SetFileExtract();
-	SetFileHook();
+	//SetFileHook();
+	SetScriptDump();
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)

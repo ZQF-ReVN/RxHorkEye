@@ -5,3 +5,4 @@ VOID SetFileDump();
 VOID SetFileExtract();
 VOID SetFileHook();
 VOID SetScriptDump();
+VOID SetScriptHook();

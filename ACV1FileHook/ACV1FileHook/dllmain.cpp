@@ -1,4 +1,4 @@
-#include "ACV1Extract.h"
+﻿#include "ACV1Extract.h"
 
 VOID Start()
 {
@@ -6,7 +6,8 @@ VOID Start()
 	//SetFileDump();
 	//SetFileExtract();
 	//SetFileHook();
-	SetScriptDump();
+	//SetScriptDump();
+	SetScriptHook();
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)

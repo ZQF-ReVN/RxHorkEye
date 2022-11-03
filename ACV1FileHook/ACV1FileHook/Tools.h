@@ -9,6 +9,8 @@ std::string GetCurrentDirectoryPath();
 std::string BackSlash(LPCSTR lpPath);
 std::string GetFileName(std::string& strPath);
 std::string GetFolderPath(std::string& strPath);
+std::string GetScriptFileName(PBYTE pDecBuffer, PDWORD pdwDecSize);
+VOID HashToString(DWORD dwHashHigh, DWORD dwHashLow, PCHAR lpHashName);
 BOOL WriteMemory(LPVOID lpAddress, LPCVOID lpBuffer, SIZE_T szSize);
 BOOL SetHook(DWORD dwRawAddr, DWORD dwTarAddr, SIZE_T szRawSize);
 BOOL DetourAttachFunc(PVOID ppPointer, PVOID pDetour);

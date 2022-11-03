@@ -109,6 +109,38 @@ std::string GetFolderPath(std::string& strPath)
 	}
 }
 
+std::string GetScriptFileName(PBYTE pDecBuffer, PDWORD pdwDecSize)
+{
+	CHAR buffer[0xFF] = { 0 };
+	for (size_t i = 0; (i < *pdwDecSize) && (i < 0x100); i++)
+	{
+		if (pDecBuffer[i] == 0x2A)
+		{
+			sscanf_s((PCHAR)&pDecBuffer[i], "%s", buffer, 0xFF);
+			//std::cout << buffer << std::endl;
+			break;
+		}
+	}
+
+	std::string fileName = buffer;
+	if ((unsigned char)fileName[0] == 0x2A)
+	{
+		fileName = fileName.substr(1);
+	}
+
+	return fileName;
+}
+
+VOID HashToString(DWORD dwHashHigh, DWORD dwHashLow, PCHAR lpHashName)
+{
+	CHAR hashHighName[0x9] = { 0 };
+	CHAR hashLowName[0x9] = { 0 };
+	_itoa_s(dwHashHigh, hashHighName, 16);
+	_itoa_s(dwHashLow, hashLowName, 16);
+	lstrcatA(lpHashName, hashLowName);
+	lstrcatA(lpHashName, hashHighName);
+}
+
 BOOL WriteMemory(LPVOID lpAddress, LPCVOID lpBuffer, SIZE_T szSize)
 {
 	DWORD oldProtect = 0;

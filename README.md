@@ -17,15 +17,15 @@ Call one of these functions.
 And you must to find these two functions address first.  
 ```c
 /*
-Game:		ハナヒメ＊アブソリュート！
+GameTitle:	ハナヒメ＊アブソリュート！
 LoadScript:	rva:0xCE9B0
 DecScript:	rva:0x12AC00
 	
-Game:		我が姫君に栄冠を
+GameTitle:	我が姫君に栄冠を
 LoadScript:	rva:0xD18B0
 DecScript:	rva:0x1389E0
 
-Game:		我が姫君に栄冠をFD
+GameTitle:	我が姫君に栄冠をFD
 LoadScript:	rva:0xD30F0
 DecScript:	rva:0x13A540
 */

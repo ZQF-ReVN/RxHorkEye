@@ -56,7 +56,7 @@ Script file name is composed of the first line of the file starting with * and t
 `[first line]#[hash value]` like this `01A_0600_0#c7bad15bb65b0057`  
 
 ## About SetScriptHook();
-Put dump script files into the `.\\FileHook\\Script`  folder
+Put dump script files into the `.\\FileHook\\Script` folder  
 the script file name must be  
 like this `[first line]#[hash value]`  
 like this `01A_0600_0#c7bad15bb65b0057`  

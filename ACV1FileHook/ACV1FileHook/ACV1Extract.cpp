@@ -151,7 +151,7 @@ DWORD ACV1DecScript(PBYTE pDecBuffer, PDWORD pdwDecSize, PBYTE pRawBuffer, DWORD
 		HANDLE hFile = 0;
 		std::string fileName = GetScriptFileName(pDecBuffer, pdwDecSize);
 		std::string hashName = g_lpHashName;
-		std::cout << fileName << std::endl;
+		std::cout << fileName << "#" << hashName << std::endl;
 
 		SHCreateDirectoryExA(NULL, (g_strCurrentPath + "Script\\").c_str(), NULL);
 
@@ -218,27 +218,28 @@ VOID SetFileExtract()
 //Read files without repack
 VOID SetFileHook()
 {
+	CreateDirectoryA(g_strFileHookFolder.c_str(), NULL);
 	DetourAttachFunc(&rawLoadFile, ACV1FileHook);
 }
 
-VOID SetScriptDump()
+VOID SetScriptDump(DWORD rvaLoadScript, DWORD rvaDecScript)
 {
 	SetConsole(L"ACV1ScriptDump");
 	g_strCurrentPath = GetCurrentDirectoryPath() + g_strDumpFolder;
 
-	rawLoadScript = (pLoadScript)((DWORD)GetModuleHandleW(NULL) + 0xCE9B0); //004CE9B0
-	rawDecScript = (pDecScript)((DWORD)GetModuleHandleW(NULL) + 0x12AC00); //0052AC00
+	rawLoadScript = (pLoadScript)((DWORD)GetModuleHandleW(NULL) + rvaLoadScript);
+	rawDecScript = (pDecScript)((DWORD)GetModuleHandleW(NULL) + rvaDecScript);
 	DetourAttachFunc(&rawLoadScript, ACV1LoadScript);
 	DetourAttachFunc(&rawDecScript, ACV1DecScript);
 }
 
-VOID SetScriptHook()
+VOID SetScriptHook(DWORD rvaLoadScript,DWORD rvaDecScript)
 {
 	//SetConsole(L"ACV1ScriptHook");
 	g_strCurrentPath = GetCurrentDirectoryPath() + g_strScriptHookFolder;
 
-	rawLoadScript = (pLoadScript)((DWORD)GetModuleHandleW(NULL) + 0xCE9B0); //004CE9B0
-	rawDecScript = (pDecScript)((DWORD)GetModuleHandleW(NULL) + 0x12AC00); //0052AC00
+	rawLoadScript = (pLoadScript)((DWORD)GetModuleHandleW(NULL) + rvaLoadScript); //004CE9B0
+	rawDecScript = (pDecScript)((DWORD)GetModuleHandleW(NULL) + rvaDecScript); //0052AC00
 	DetourAttachFunc(&rawLoadScript, ACV1LoadScript);
 	DetourAttachFunc(&rawDecScript, ACV1RewScript);
 }

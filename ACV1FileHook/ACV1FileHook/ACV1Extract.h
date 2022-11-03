@@ -4,5 +4,5 @@
 VOID SetFileDump();
 VOID SetFileExtract();
 VOID SetFileHook();
-VOID SetScriptDump();
-VOID SetScriptHook();
+VOID SetScriptDump(DWORD rvaLoadScript, DWORD rvaDecScript);
+VOID SetScriptHook(DWORD rvaLoadScript, DWORD rvaDecScript);

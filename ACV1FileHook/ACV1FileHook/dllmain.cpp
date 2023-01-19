@@ -12,6 +12,10 @@ VOID Start()
 	Game:		ハナヒメ＊アブソリュート！
 	LoadScript:	rva:0xCE9B0
 	DecScript:	rva:0x12AC00
+
+	Game:		魔法少女まじかるあーりん
+	LoadScript:	rva:0xCC1C0
+	DecScript:	rva:0x128440
 	
 	Game:		我が姫君に栄冠を
 	LoadScript:	rva:0xD18B0
@@ -21,7 +25,7 @@ VOID Start()
 	LoadScript:	rva:0xD30F0
 	DecScript:	rva:0x13A540
 	*/
-	//SetScriptDump(0xD30F0, 0x13A540);
+	//SetScriptDump(0xCC1C0, 0x128440);
 	//SetScriptHook(0xD30F0, 0x13A540);
 }
 

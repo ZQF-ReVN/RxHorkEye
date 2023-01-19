@@ -15,7 +15,7 @@ pLoadFile rawLoadFile = (pLoadFile)GetProcAddress(GetModuleHandleW(NULL), "loadF
 
 //To Find This Func Search String Script.dat
 typedef DWORD(CDECL* pLoadScript)(DWORD dwHashHigh, DWORD dwHashLow, PBYTE* ppBuffer);
-pLoadScript rawLoadScript = 0;
+pLoadScript rawLoadScript = nullptr;
 
 //This Func Is Called In LoadScript After fread();.
 //Rawbuffer Will Be Released When The Func Is Complete By Call free();.

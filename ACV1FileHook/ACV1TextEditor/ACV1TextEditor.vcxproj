@@ -131,13 +131,14 @@
   <ItemGroup>
     <ClCompile Include="ACV1TextEditor.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="ConvertString.cpp" />
-    <ClCompile Include="EnumFiles.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ACV1TextEditor.h" />
-    <ClInclude Include="ConvertString.h" />
-    <ClInclude Include="EnumFiles.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TDA\TDA.vcxproj">
+      <Project>{6025b745-02f7-47ea-9911-35649da8cea0}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

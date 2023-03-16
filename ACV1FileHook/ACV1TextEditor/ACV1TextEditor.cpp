@@ -1,14 +1,23 @@
 #include "ACV1TextEditor.h"
-using namespace std;
+#include "../TDA/StringX.h"
 
-bool DumpText(wstring& strFileNmae, unsigned int uCodePage, bool isDoubleLine)
+#include <iostream>
+#include <iomanip>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <map>
+
+using namespace std;
+using namespace TDA;
+
+bool DumpText(wstring& strFileNmae, unsigned int uCodePage)
 {
 	unsigned int lineCount = 1;
-	auto cvtUTF8 = locale(locale::empty(), new codecvt_utf8<wchar_t, 0x10ffff, codecvt_mode(consume_header | generate_header | little_endian)>);
 
 	ifstream scriptFile(strFileNmae);
 	wofstream transFile(strFileNmae + L".txt");
-	transFile.imbue(cvtUTF8);
+	transFile.imbue(StringX::GetCVT_UTF8());
 	if (transFile.is_open() && scriptFile.is_open())
 	{
 		wstring wLine;
@@ -24,17 +33,10 @@ bool DumpText(wstring& strFileNmae, unsigned int uCodePage, bool isDoubleLine)
 				mLine.find("SELECT \"") == 0
 				)
 			{
-				wLine = StrToWStr(mLine, uCodePage);
+				StringX::StrToWStr(mLine, wLine, uCodePage);
 				transFile << L"Count:" << setw(0x8) << setfill(L'0') << lineCount << endl;
 				transFile << L"Raw:" << wLine << endl;
-				if (isDoubleLine)
-				{
-					transFile << L"Tra:" << wLine << endl << endl;
-				}
-				else
-				{
-					transFile << L"Tra:" << endl << endl;
-				}
+				transFile << L"Tra:" << wLine << endl << endl;
 			}
 		}
 		scriptFile.close();
@@ -51,11 +53,10 @@ bool InsetText(wstring& strFileName, unsigned int uCodePage)
 {
 	vector<string> scriptLineList;
 	map<unsigned int, wstring> transLineMAP;
-	auto cvtUTF8 = locale(locale::empty(), new codecvt_utf8<wchar_t, 0x10ffff, codecvt_mode(consume_header | generate_header | little_endian)>);
 
 	//Get Trans Text
 	wifstream transFile(strFileName + L".txt");
-	transFile.imbue(cvtUTF8);
+	transFile.imbue(StringX::GetCVT_UTF8());
 	if (transFile.is_open())
 	{
 		unsigned int position = 0;
@@ -112,7 +113,7 @@ bool InsetText(wstring& strFileName, unsigned int uCodePage)
 		//Replace Trans Text
 		for (auto& iteTrans : transLineMAP)
 		{
-			scriptLineList[iteTrans.first - 1] = WStrToStr(iteTrans.second, uCodePage);
+			StringX::WStrToStr(iteTrans.second, scriptLineList[iteTrans.first - 1], uCodePage);
 		}
 
 		//Write Back All Line

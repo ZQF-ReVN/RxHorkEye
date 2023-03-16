@@ -1,13 +1,12 @@
 #include <iostream>
-#include "EnumFiles.h"
 #include "ACV1TextEditor.h"
+#include "../TDA/EnumFiles.h"
 using namespace std;
 
 
 int main()
 {
 	char flag = 0;
-	bool isDoubleLine = FALSE;
 	wstring basePathW = L".\\";
 	vector<wstring> filesNameListW;
 	unsigned int dumpCodePage = 932;
@@ -16,14 +15,13 @@ int main()
 	wcout << L"Input [ d ] to dump Text" << endl;
 	wcout << L"Input [ i ] to insert Text" << endl;
 	wcout << L"Input [ c ] to set CodePage" << endl;
-	wcout << L"Input [ t ] to set Dump Double Line Text" << endl;
 
 	while (true)
 	{
 		wcout << L"\nInput:";
 		cin >> flag;
 
-		EnumFilesW enumFileW(basePathW);
+		TDA::EnumFilesW enumFileW(basePathW);
 		filesNameListW = enumFileW.GetCurrentFilesName();
 
 		switch (flag)
@@ -33,7 +31,7 @@ int main()
 			{
 				if (strFileNameW.find(L".", 2) == wstring::npos)
 				{
-					if (DumpText(strFileNameW, dumpCodePage,isDoubleLine))
+					if (DumpText(strFileNameW, dumpCodePage))
 					{
 						wcout << L"Dump:" << strFileNameW << std::endl;
 					}
@@ -68,11 +66,6 @@ int main()
 			cin >> dumpCodePage;
 			wcout << L"InsetCodePage:";
 			cin >> insetCodePage;
-			break;
-
-		case 't':
-			isDoubleLine = TRUE;
-			wcout << L"Set Dump Double Line Text" << endl;
 			break;
 
 		default:

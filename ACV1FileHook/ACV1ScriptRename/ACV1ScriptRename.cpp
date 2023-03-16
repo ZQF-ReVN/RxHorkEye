@@ -32,11 +32,11 @@ unsigned int EndianSwap(unsigned int x)
 
 VOID HashToString(DWORD dwHashHigh, DWORD dwHashLow, PCHAR lpHashName)
 {
-	CHAR hashHighName[0x9] = { 0 };
-	CHAR hashLowName[0x9] = { 0 };
+	static CHAR hashHighName[0x9] = { 0 };
+	static CCHAR hashLowName[0x9] = { 0 };
 	_itoa_s(dwHashHigh, hashHighName, 16);
 	_itoa_s(dwHashLow, hashLowName, 16);
-	lstrcatA(lpHashName, hashLowName);
+	lstrcpyA(lpHashName, hashLowName);
 	lstrcatA(lpHashName, hashHighName);
 }
 

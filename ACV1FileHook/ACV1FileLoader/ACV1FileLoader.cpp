@@ -1,5 +1,7 @@
 #include <Windows.h>
-#include <detours.h>
+
+#include "../ThirdParty/detours/include/detours.h"
+#pragma comment(lib,"../ThirdParty/detours/lib.X86/detours.lib")
 
 STARTUPINFOW si;
 PROCESS_INFORMATION pi;
@@ -12,7 +14,7 @@ INT WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 
 	LPCSTR dllName = "ACV1FileHook.dll";
 
-	if (DetourCreateProcessWithDllW(lpCmdLine, NULL, NULL, NULL, FALSE, CREATE_SUSPENDED, NULL, NULL, &si, &pi, dllName, NULL))
+	if (DetourCreateProcessWithDllW(L"¥Ï¥Ê¥Ò¥á£ª¥¢¥Ö¥½¥ê¥å©`¥È£¡.exe", NULL, NULL, NULL, FALSE, CREATE_SUSPENDED, NULL, NULL, &si, &pi, dllName, NULL))
 	{
 		ResumeThread(pi.hThread);
 		CloseHandle(pi.hThread);

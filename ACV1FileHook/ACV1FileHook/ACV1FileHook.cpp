@@ -1,0 +1,49 @@
+﻿#include "ACV1Extract.h"
+
+VOID Start()
+{
+	//Attention!! Only one of the three functions can be called at a time
+	SetFileDump("Dump\\");
+	//SetFileExtract("Extract\\");
+	//SetFileHook(".\\FileHook\\");
+	
+	
+	/*
+	Game:		ハナヒメ＊アブソリュート！
+	LoadScript:	rva:0xCE9B0
+	DecScript:	rva:0x12AC00
+
+	Game:		魔法少女まじかるあーりん
+	LoadScript:	rva:0xCC1C0
+	DecScript:	rva:0x128440
+	
+	Game:		我が姫君に栄冠を
+	LoadScript:	rva:0xD18B0
+	DecScript:	rva:0x1389E0
+
+	Game:		我が姫君に栄冠をFD
+	LoadScript:	rva:0xD30F0
+	DecScript:	rva:0x13A540
+	*/
+	//SetScriptDump(0xCE9B0, 0x12AC00, "Dump\\Script\\");
+	//SetScriptHook(0xCE9B0, 0x12AC00, "FileHook\\Script\\");
+}
+
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
+{
+	switch (ul_reason_for_call)
+	{
+	case DLL_PROCESS_ATTACH:
+		Start();
+		break;
+	case DLL_THREAD_ATTACH:
+		break;
+	case DLL_THREAD_DETACH:
+		break;
+	case DLL_PROCESS_DETACH:
+		break;
+	}
+	return TRUE;
+}
+
+VOID __declspec(dllexport) DirA() {}

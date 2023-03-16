@@ -1,8 +1,9 @@
 #pragma once
-#include "Tools.h"
+#include <Windows.h>
+#include <shlobj.h>
 
-VOID SetFileDump();
-VOID SetFileExtract();
-VOID SetFileHook();
-VOID SetScriptDump(DWORD rvaLoadScript, DWORD rvaDecScript);
-VOID SetScriptHook(DWORD rvaLoadScript, DWORD rvaDecScript);
+VOID SetFileDump(LPCSTR lpFolder);
+VOID SetFileExtract(LPCSTR lpFolder); 
+VOID SetFileHook(LPCSTR lpFolder);
+VOID SetScriptDump(DWORD rvaLoadScript, DWORD rvaDecScript, LPCSTR lpFolder);
+VOID SetScriptHook(DWORD rvaLoadScript, DWORD rvaDecScript, LPCSTR lpFolder);

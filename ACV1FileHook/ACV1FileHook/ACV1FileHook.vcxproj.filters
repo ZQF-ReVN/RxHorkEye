@@ -1,19 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="ACV1Extract">
-      <UniqueIdentifier>{fd22c127-80ac-4dfe-9ede-10a07b0b224b}</UniqueIdentifier>
-    </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="ACV1Extract.cpp">
-      <Filter>ACV1Extract</Filter>
-    </ClCompile>
     <ClCompile Include="ACV1FileHook.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="ACV1Extract.h">
-      <Filter>ACV1Extract</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

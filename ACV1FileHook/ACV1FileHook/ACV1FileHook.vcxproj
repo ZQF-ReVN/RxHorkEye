@@ -80,15 +80,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ACV1Extract.cpp" />
     <ClCompile Include="ACV1FileHook.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ACV1Extract.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\TDA\TDA.vcxproj">
-      <Project>{6025b745-02f7-47ea-9911-35649da8cea0}</Project>
+    <ProjectReference Include="..\ACV1Extract\ACV1Extract.vcxproj">
+      <Project>{e580bdf6-7cf5-4e3b-8de3-8d8a26335942}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

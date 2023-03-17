@@ -7,6 +7,7 @@ using namespace std;
 int main()
 {
 	char flag = 0;
+	bool isInsetName = false;
 	wstring basePathW = L".\\";
 	vector<wstring> filesNameListW;
 	unsigned int dumpCodePage = 932;
@@ -15,6 +16,7 @@ int main()
 	wcout << L"Input [ d ] to dump Text" << endl;
 	wcout << L"Input [ i ] to insert Text" << endl;
 	wcout << L"Input [ c ] to set CodePage" << endl;
+	wcout << L"Input [ n ] to replace text with role name [default not replace role name]" << endl;
 
 	while (true)
 	{
@@ -49,7 +51,7 @@ int main()
 			{
 				if (strFileNameW.find(L".", 2) == wstring::npos)
 				{
-					if (InsetText(strFileNameW, insetCodePage))
+					if (InsetText(strFileNameW, insetCodePage, isInsetName))
 					{
 						wcout << L"Inset:" << strFileNameW << std::endl;
 					}
@@ -67,6 +69,13 @@ int main()
 			wcout << L"InsetCodePage:";
 			cin >> insetCodePage;
 			break;
+
+		case 'n':
+		{
+			isInsetName = true;
+			wcout << L"Replace text with role name\n";
+			break;
+		}
 
 		default:
 			wcout << L"Illegal instructions" << endl;

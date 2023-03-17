@@ -5,7 +5,6 @@
 #include "../TDA/MemX.h"
 
 static FILE* g_fpFileNameList = NULL;
-static CHAR g_lpHashName[0x11] = { 0 };
 static std::string g_strCurrentPath;
 static std::string g_strFileHookFolder;
 static DWORD g_dwExeBase = (DWORD)GetModuleHandleW(NULL);
@@ -26,6 +25,21 @@ pDecScript RawDecScript = nullptr;
 
 typedef DWORD(CDECL* pProcScript)(PBYTE pScriptBuffer, DWORD dwScriptSize, PDWORD pFunc, PDWORD pRetStruct);
 pProcScript RawProcScript = nullptr;
+
+PCHAR GetScriptPatch(DWORD dwHashHigh = NULL, DWORD dwHashLow = NULL)
+{
+	static CHAR filePath[0xFF] = { 0 };
+
+	if (dwHashHigh && dwHashLow)
+	{
+		static CHAR hashName[0x11] = { 0 };
+		sprintf_s(hashName, 0x11, "%X%X", dwHashHigh, dwHashLow);
+		lstrcpyA(filePath, g_strCurrentPath.c_str());
+		lstrcatA(filePath, hashName);
+	}
+
+	return filePath;
+}
 
 BOOL FileExistA(std::string& strFilePath)
 {
@@ -119,31 +133,22 @@ DWORD ACV1FileHook(LPCSTR lpFileName, PBYTE* FileBuffer, PDWORD dwFileSize, PDWO
 
 DWORD ACV1LoadScript(DWORD dwHashHigh, DWORD dwHashLow, PBYTE* ppBuffer)
 {
-	static CHAR aHashHigh[0x9] = { 0 };
-	static CHAR aHashLow[0x9] = { 0 };
-	memset(g_lpHashName, 0, 0x11);
-	_itoa_s(dwHashHigh, aHashHigh, 16);
-	_itoa_s(dwHashLow, aHashLow, 16);
-	lstrcpyA(g_lpHashName, aHashLow);
-	lstrcatA(g_lpHashName, aHashHigh);
+	GetScriptPatch(dwHashHigh, dwHashLow);
 	return RawLoadScript(dwHashHigh, dwHashLow, ppBuffer);
 }
 
 DWORD ACV1ExtractScript(PBYTE pScriptBuffer, DWORD dwScriptSize, PDWORD pFunc, PDWORD pRetStruct)
 {
-	if (g_lpHashName[0])
+	HANDLE hFile = CreateFileA(GetScriptPatch(), GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+
+	if (hFile != INVALID_HANDLE_VALUE)
 	{
-		std::string filePath = g_strCurrentPath + g_lpHashName;
-		HANDLE hFile = CreateFileA(filePath.c_str(), GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+		WriteFile(hFile, pScriptBuffer, dwScriptSize, NULL, NULL);
+		FlushFileBuffers(hFile);
+		CloseHandle(hFile);
 
-		if (hFile != INVALID_HANDLE_VALUE)
-		{
-			WriteFile(hFile, pScriptBuffer, dwScriptSize, NULL, NULL);
-			FlushFileBuffers(hFile);
-			CloseHandle(hFile);
 
-			printf("%s\n", filePath.c_str());
-		}
+		printf("%s\n", GetScriptPatch());
 	}
 
 	return RawProcScript(pScriptBuffer, dwScriptSize, pFunc, pRetStruct);
@@ -151,27 +156,22 @@ DWORD ACV1ExtractScript(PBYTE pScriptBuffer, DWORD dwScriptSize, PDWORD pFunc, P
 
 DWORD ACV1HookScript(PBYTE pScriptBuffer, DWORD dwScriptSize, PDWORD pFunc, PDWORD pRetStruct)
 {
-	if (g_lpHashName[0])
+	HANDLE hFile = CreateFileA(GetScriptPatch(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+
+	if (hFile != INVALID_HANDLE_VALUE)
 	{
-		std::string filePath = g_strCurrentPath + g_lpHashName;
-		HANDLE hFile = CreateFileA(filePath.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-		memset(g_lpHashName, 0, 0x11);
+		DWORD size = GetFileSize(hFile, NULL);
+		PBYTE alloc = (PBYTE)VirtualAlloc(NULL, size, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+		DWORD ret = 0;
 
-		if (hFile != INVALID_HANDLE_VALUE)
+		if (size && alloc && ReadFile(hFile, alloc, size, NULL, NULL))
 		{
-			DWORD size = GetFileSize(hFile, NULL);
-			PBYTE alloc = (PBYTE)VirtualAlloc(NULL, size, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
-			DWORD ret = 0;
-
-			if (size && alloc && ReadFile(hFile, alloc, size, NULL, NULL))
-			{
-				ret = RawProcScript(alloc, size, pFunc, pRetStruct);
-				VirtualFree(alloc, NULL, MEM_RELEASE);
-			}
-
-			CloseHandle(hFile);
-			return ret;
+			ret = RawProcScript(alloc, size, pFunc, pRetStruct);
+			VirtualFree(alloc, NULL, MEM_RELEASE);
 		}
+
+		CloseHandle(hFile);
+		return ret;
 	}
 
 	return RawProcScript(pScriptBuffer, dwScriptSize, pFunc, pRetStruct);

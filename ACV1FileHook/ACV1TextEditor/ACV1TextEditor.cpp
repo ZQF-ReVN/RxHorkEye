@@ -49,7 +49,7 @@ bool DumpText(wstring& strFileNmae, unsigned int uCodePage)
 	}
 }
 
-bool InsetText(wstring& strFileName, unsigned int uCodePage)
+bool InsetText(wstring& strFileName, unsigned int uCodePage, bool isInsetName)
 {
 	vector<string> scriptLineList;
 	map<unsigned int, wstring> transLineMAP;
@@ -111,9 +111,25 @@ bool InsetText(wstring& strFileName, unsigned int uCodePage)
 	if (newScriptFile.is_open())
 	{
 		//Replace Trans Text
+		std::string gbkText;
+		std::string sjisName;
 		for (auto& iteTrans : transLineMAP)
 		{
-			StringX::WStrToStr(iteTrans.second, scriptLineList[iteTrans.first - 1], uCodePage);
+			std::wstring& unicodeText = iteTrans.second;
+			std::string& sjisText = scriptLineList[iteTrans.first - 1];
+			TDA::StringX::WStrToStr(unicodeText, gbkText, uCodePage);
+
+			if ((unsigned char)sjisText[0] == 0x81 && (unsigned char)sjisText[1] == 0x79 && !isInsetName)
+			{
+				size_t pos = sjisText.find("Åz") + 2;
+				if (pos != std::string::npos)
+				{
+					sjisName = sjisText.substr(0, pos);
+					gbkText = sjisName + gbkText.substr(pos);
+				}
+			}
+
+			sjisText = gbkText;
 		}
 
 		//Write Back All Line

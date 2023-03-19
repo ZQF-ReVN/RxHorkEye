@@ -9,6 +9,8 @@ namespace TDA
 	{
 	public:
 		static FILE* SetConsole(LPCWSTR lpTitle);
+		static BOOL  PutConsoleA(LPCSTR lpFormat, ...);
+		static BOOL  PutConsoleW(LPCWSTR lpFormat, ...);
 	};
 }
 

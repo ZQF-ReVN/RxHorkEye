@@ -4,8 +4,10 @@
 #include "../TDA/FileX.h"
 #include "../TDA/MemX.h"
 
+
 static FILE* g_fpFileNameList = NULL;
 static DWORD g_dwExeBase = (DWORD)GetModuleHandleW(NULL);
+
 
 //Game Engine Export This Func
 typedef DWORD(CDECL* pLoadFile)(LPCSTR lpFileName, PBYTE* ppFileBuffer, PDWORD dwFileSize, PDWORD dwUnknow);
@@ -13,11 +15,11 @@ pLoadFile RawLoadFile = (pLoadFile)GetProcAddress(GetModuleHandleW(NULL), "loadF
 
 //To Find This Func Search String "Script.dat"
 typedef DWORD(CDECL* pLoadScript)(DWORD dwHashHigh, DWORD dwHashLow, PBYTE* ppBuffer);
-pLoadScript RawLoadScript = nullptr;
+pLoadScript RawLoadScript = NULL;
 
 //To Find This Func Search String "script/"
 typedef DWORD(CDECL* pProcScript)(PBYTE pScriptBuffer, DWORD dwScriptSize, PDWORD pFunc, PDWORD pRetStruct, LPCSTR lpString);
-pProcScript RawProcScript = nullptr;
+pProcScript RawProcScript = NULL;
 
 BOOL ACV1FileWrite(LPCSTR lpRelativePath, PBYTE* ppFileBuffer, PDWORD dwFileSize)
 {
@@ -37,16 +39,17 @@ BOOL ACV1FileWrite(LPCSTR lpRelativePath, PBYTE* ppFileBuffer, PDWORD dwFileSize
 	return TRUE;
 }
 
-static std::string g_strFileDumpFolder;
+static LPCSTR g_lpFileDumpFolder = NULL; static CHAR g_lpFileDumpPath[MAX_PATH] = { 0 };
 DWORD ACV1FileDump(LPCSTR lpRelativePath, PBYTE* ppFileBuffer, PDWORD dwFileSize, PDWORD dwUnknow)
 {
 	DWORD result = RawLoadFile(lpRelativePath, ppFileBuffer, dwFileSize, dwUnknow);
-
 	if ((ppFileBuffer[0] == NULL) || (dwFileSize[0] == NULL)) return result;
 
-	ACV1FileWrite((g_strFileDumpFolder + lpRelativePath).c_str(), ppFileBuffer, dwFileSize);
+	lstrcpyA(g_lpFileDumpPath, g_lpFileDumpFolder); lstrcatA(g_lpFileDumpPath, lpRelativePath);
+	ACV1FileWrite(g_lpFileDumpPath, ppFileBuffer, dwFileSize);
 
-	printf("%s\n", lpRelativePath);
+	TDA::ConsoleX::PutConsoleA("%s\n", g_lpFileDumpPath);
+
 	fprintf(g_fpFileNameList, "%s\n", lpRelativePath);
 	fflush(g_fpFileNameList);
 
@@ -69,11 +72,11 @@ VOID ACV1FileExtract()
 		RawLoadFile(fileName.c_str(), &buffer, &size, &unknow);
 		if (ACV1FileWrite((g_strFileExtractFolder + fileName).c_str(), &buffer, &size))
 		{
-			std::cout << "Extract:" << fileName << std::endl;
+			TDA::ConsoleX::PutConsoleA("%s%s", "Extract:", fileName);
 		}
 		else
 		{
-			std::cout << "Extract Failed!!" << std::endl;
+			TDA::ConsoleX::PutConsoleA("%s\n", "Extract Failed!!");
 		}
 
 		size = 0;
@@ -81,68 +84,76 @@ VOID ACV1FileExtract()
 	}
 }
 
-//for this engine if can't find hash value of filename in pack, will read file in game directory.
-//An error will be reported if file does not exist in the directory either.
-//So change file path so that engine could not search for corresponding file in pack, and thus go to directory to read file
-static std::string g_lpFileHookFolder;
+//for this engine if can't find the hash value of filename in pack, will read the file in game directory.
+//An error will be reported if the file does not exist in the directory either.
+//So I changed the file name path so that the engine could not search for the corresponding file in pack
+//and thus go to the directory to read the file
+static LPCSTR g_lpFileHookFolder = NULL; static CHAR g_lpFileHookPath[MAX_PATH] = { 0 };
 DWORD ACV1FileHook(LPCSTR lpRelativePath, PBYTE* ppFileBuffer, PDWORD dwFileSize, PDWORD dwUnknow)
 {
-	DWORD isFileExist = GetFileAttributesA((g_lpFileHookFolder + lpRelativePath).c_str());
+	lstrcpyA(g_lpFileHookPath, g_lpFileHookFolder); lstrcatA(g_lpFileHookPath, lpRelativePath);
 
-	if ((isFileExist != INVALID_FILE_ATTRIBUTES) && (isFileExist != FILE_ATTRIBUTE_DIRECTORY))
-	{
-		return RawLoadFile((g_lpFileHookFolder + lpRelativePath).c_str(), ppFileBuffer, dwFileSize, dwUnknow);
-	}
+	DWORD attri = GetFileAttributesA(g_lpFileHookPath);
+	if ((attri != INVALID_FILE_ATTRIBUTES) && (attri != FILE_ATTRIBUTE_DIRECTORY)) lpRelativePath = g_lpFileHookPath;
 
 	return RawLoadFile(lpRelativePath, ppFileBuffer, dwFileSize, dwUnknow);
 }
 
+
 static CHAR g_lpHashName[0x11] = { 0 };
-DWORD ACV1LoadScript(DWORD dwHashHigh, DWORD dwHashLow, PBYTE* ppBuffer)
+DWORD ACV1ScriptLoad(DWORD dwHashHigh, DWORD dwHashLow, PBYTE* ppBuffer)
 {
 	sprintf_s(g_lpHashName, 0x11, "%X%X", dwHashHigh, dwHashLow);
 	return RawLoadScript(dwHashHigh, dwHashLow, ppBuffer);
 }
 
-static std::string g_strScriptExtractFolder;
-DWORD ACV1ExtractScript(PBYTE pScriptBuffer, DWORD dwScriptSize, PDWORD pFunc, PDWORD pRetStruct, LPCSTR lpString)
+static LPCSTR g_lpScriptDumpFolder; static CHAR g_lpScriptDumpPath[MAX_PATH] = { 0 };
+DWORD ACV1ScriptDump(PBYTE pScriptBuffer, DWORD dwScriptSize, PDWORD pFunc, PDWORD pRetStruct, LPCSTR lpString)
 {
-	HANDLE hFile = CreateFileA((g_strScriptExtractFolder + g_lpHashName).c_str(), GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-
-	if (hFile != INVALID_HANDLE_VALUE)
+	if (g_lpHashName[0])
 	{
-		WriteFile(hFile, pScriptBuffer, dwScriptSize, NULL, NULL);
-		FlushFileBuffers(hFile);
-		CloseHandle(hFile);
-		printf("%s\n", g_lpHashName);
-		memset(g_lpHashName, 0, 0x11);
+		lstrcpyA(g_lpScriptDumpPath, g_lpScriptDumpFolder); lstrcatA(g_lpScriptDumpPath, g_lpHashName); memset(g_lpHashName, 0x0, 0x11);
+		HANDLE hFile = CreateFileA(g_lpScriptDumpPath, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+
+		if (hFile != INVALID_HANDLE_VALUE)
+		{
+			TDA::ConsoleX::PutConsoleA("%s\n", g_lpScriptDumpPath);
+			WriteFile(hFile, pScriptBuffer, dwScriptSize, NULL, NULL);
+			FlushFileBuffers(hFile);
+
+			CloseHandle(hFile);
+		}
 	}
 
 	return RawProcScript(pScriptBuffer, dwScriptSize, pFunc, pRetStruct, lpString);
 }
 
-static std::string g_strScriptHookFolder;
-DWORD ACV1HookScript(PBYTE pScriptBuffer, DWORD dwScriptSize, PDWORD pFunc, PDWORD pRetStruct, LPCSTR lpString)
+static DWORD g_dwAllocSize = 0; static PBYTE g_pAllocBuffer = NULL;
+static LPCSTR g_lpScriptHookFolder; static CHAR g_lpScriptHookPath[MAX_PATH] = { 0 };
+DWORD ACV1ScriptHook(PBYTE pScriptBuffer, DWORD dwScriptSize, PDWORD pFunc, PDWORD pRetStruct, LPCSTR lpString)
 {
 	if (g_lpHashName[0])
 	{
-		HANDLE hFile = CreateFileA((g_strScriptHookFolder + g_lpHashName).c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+		lstrcpyA(g_lpScriptHookPath, g_lpScriptHookFolder); lstrcatA(g_lpScriptHookPath, g_lpHashName); memset(g_lpHashName, 0x0, 0x11);
+		HANDLE hFile = CreateFileA(g_lpScriptHookPath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
 		if (hFile != INVALID_HANDLE_VALUE)
 		{
-			DWORD size = GetFileSize(hFile, NULL);
-			PBYTE alloc = (PBYTE)VirtualAlloc(NULL, size, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
-			DWORD ret = 0;
-
-			if (size && alloc && ReadFile(hFile, alloc, size, NULL, NULL))
+			DWORD szNewScript = GetFileSize(hFile, NULL);
+			if (g_dwAllocSize < szNewScript)
 			{
-				ret = RawProcScript(alloc, size, pFunc, pRetStruct, lpString);
-				VirtualFree(alloc, NULL, MEM_RELEASE);
+				if (g_pAllocBuffer) VirtualFree(g_pAllocBuffer, NULL, MEM_RELEASE);
+				g_pAllocBuffer = (PBYTE)VirtualAlloc(NULL, szNewScript, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+				g_dwAllocSize = szNewScript;
 			}
 
-			memset(g_lpHashName, 0x0, 0x11);
+			if (ReadFile(hFile, g_pAllocBuffer, szNewScript, NULL, NULL) && szNewScript)
+			{
+				pScriptBuffer = g_pAllocBuffer;
+				dwScriptSize = szNewScript;
+			}
+
 			CloseHandle(hFile);
-			return ret;
 		}
 	}
 
@@ -150,12 +161,12 @@ DWORD ACV1HookScript(PBYTE pScriptBuffer, DWORD dwScriptSize, PDWORD pFunc, PDWO
 }
 
 
-//Extracting files from a running game
+//Extract files from a running game
 VOID SetFileDump(LPCSTR lpFolder)
 {
 	TDA::ConsoleX::SetConsole(L"ACV1FileDump");
 
-	g_strFileDumpFolder = lpFolder;
+	g_lpFileDumpFolder = lpFolder;
 
 	g_fpFileNameList = _fsopen("ACV1FileNameList.txt", "a", _SH_DENYNO);
 	if (!g_fpFileNameList) MessageBoxW(NULL, L"CreateListFile Failed!!", NULL, NULL);
@@ -163,7 +174,7 @@ VOID SetFileDump(LPCSTR lpFolder)
 	TDA::DetoursX::DetourAttachFunc(&RawLoadFile, ACV1FileDump);
 }
 
-//Extracting files by filename
+//Extract files by filename
 VOID SetFileExtract(LPCSTR lpFolder)
 {
 	TDA::ConsoleX::SetConsole(L"ACV1FileExtract");
@@ -181,19 +192,19 @@ VOID SetFileHook(LPCSTR lpFolder)
 	TDA::DetoursX::DetourAttachFunc(&RawLoadFile, ACV1FileHook);
 }
 
-//Dump all script at game startup
+//Extract script at startup
 VOID SetScriptDump(DWORD rvaLoadScript, DWORD rvaProcScript, LPCSTR lpFolder)
 {
 	TDA::ConsoleX::SetConsole(L"ACV1ScriptDump");
 
-	g_strScriptExtractFolder = lpFolder;
+	g_lpScriptDumpFolder = lpFolder;
 
 	SHCreateDirectoryExA(NULL, (TDA::FileX::GetCurrentDirectoryFolder_RETA() + lpFolder).c_str(), NULL);
 
 	RawLoadScript = (pLoadScript)(g_dwExeBase + rvaLoadScript);
 	RawProcScript = (pProcScript)(g_dwExeBase + rvaProcScript);
-	TDA::DetoursX::DetourAttachFunc(&RawLoadScript, ACV1LoadScript);
-	TDA::DetoursX::DetourAttachFunc(&RawProcScript, ACV1ExtractScript);
+	TDA::DetoursX::DetourAttachFunc(&RawLoadScript, ACV1ScriptLoad);
+	TDA::DetoursX::DetourAttachFunc(&RawProcScript, ACV1ScriptDump);
 }
 
 //Read script without repack
@@ -201,10 +212,10 @@ VOID SetScriptHook(DWORD rvaLoadScript, DWORD rvaProcScript, LPCSTR lpFolder)
 {
 	//TDA::ConsoleX::SetConsole(L"ACV1ScriptHook");
 
-	g_strScriptHookFolder = lpFolder;
+	g_lpScriptHookFolder = lpFolder;
 
 	RawLoadScript = (pLoadScript)(g_dwExeBase + rvaLoadScript);
 	RawProcScript = (pProcScript)(g_dwExeBase + rvaProcScript);
-	TDA::DetoursX::DetourAttachFunc(&RawLoadScript, ACV1LoadScript);
-	TDA::DetoursX::DetourAttachFunc(&RawProcScript, ACV1HookScript);
+	TDA::DetoursX::DetourAttachFunc(&RawLoadScript, ACV1ScriptLoad);
+	TDA::DetoursX::DetourAttachFunc(&RawProcScript, ACV1ScriptHook);
 }

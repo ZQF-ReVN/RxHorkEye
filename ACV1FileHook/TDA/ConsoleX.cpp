@@ -62,5 +62,30 @@ namespace TDA
 
 		return SetConsoleSTDIO();
 	}
+	
+
+	BOOL ConsoleX::PutConsoleA(LPCSTR lpFormat, ...)
+	{
+		static CHAR buffer[MAX_PATH] = { 0 };
+
+		va_list args = NULL;
+		va_start(args, lpFormat);
+		vsprintf_s(buffer, lpFormat, args);
+		va_end(args);
+
+		return WriteConsoleA(GetStdHandle(STD_OUTPUT_HANDLE), buffer, lstrlenA(buffer), NULL, NULL);
+	}
+
+	BOOL ConsoleX::PutConsoleW(LPCWSTR lpFormat, ...)
+	{
+		static WCHAR buffer[MAX_PATH] = { 0 };
+
+		va_list args = NULL;
+		va_start(args, lpFormat);
+		vswprintf_s(buffer, lpFormat, args);
+		va_end(args);
+
+		return WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE), buffer, lstrlenW(buffer), NULL, NULL);
+	}
 }
 

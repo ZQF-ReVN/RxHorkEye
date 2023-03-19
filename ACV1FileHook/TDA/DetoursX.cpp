@@ -43,9 +43,8 @@ namespace TDA
 	//********************
 	//* Hook CreateFontA *
 	//********************
-
-	DWORD g_dwCharSet = 0x86;
-	LPCSTR g_lpFontName = "ºÚÌå";
+	static DWORD g_dwCharSet = 0x86;
+	static LPCSTR g_lpFontName = "ºÚÌå";
 
 	typedef HFONT(WINAPI* pCreateFontA)(INT, INT, INT, INT, INT, DWORD, DWORD, DWORD, DWORD, DWORD, DWORD, DWORD, DWORD, LPCSTR);
 	pCreateFontA rawCreateFontA = CreateFontA;
@@ -72,6 +71,61 @@ namespace TDA
 		return DetourAttachFunc(&rawCreateFontA, newCreateFontA);
 	}
 
+	//********************
+    //* Hook CreateFontA *
+    //********************
+	typedef HFONT(WINAPI* pCreateFontIndirectA)(const LOGFONTA* lplf);
+	pCreateFontIndirectA rawCreateFontIndirectA = CreateFontIndirectA;
+
+
+	HFONT WINAPI newCreateFontIndirectA(LOGFONTA* lplf)
+	{
+		lplf->lfCharSet = (BYTE)g_dwCharSet;
+		strcpy_s(lplf->lfFaceName, g_lpFontName);
+		return rawCreateFontIndirectA(lplf);
+	}
+
+	BOOL DetoursX::HookCreateFontIndirectA(DWORD dwCharSet, LPCSTR lpFontName)
+	{
+		g_dwCharSet = dwCharSet;
+		g_lpFontName = lpFontName;
+		return DetourAttachFunc(&rawCreateFontIndirectA, newCreateFontIndirectA);
+	}
+
+
+	//************************
+    //* Hook CreateWindowExA *
+    //************************
+	static LPCSTR g_lpPatchTitle = NULL;
+	static LPCSTR g_lpRawTitle = NULL;
+
+	typedef HWND(WINAPI* pCreateWindowExA)(DWORD, LPCSTR, LPCSTR, DWORD, int, int, int, int, HWND, HMENU, HINSTANCE, LPVOID);
+	pCreateWindowExA RawCreateWindowExA = CreateWindowExA;
+
+	HWND WINAPI NewCreateWindowExA
+	(
+		DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, 
+		HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam
+	)
+	{
+		if (!lstrcmpA(lpWindowName, g_lpRawTitle))
+		{
+			lpWindowName = g_lpPatchTitle;
+			TDA::DetoursX::DetourDetachFunc(&RawCreateWindowExA, &NewCreateWindowExA);
+		}
+
+		return RawCreateWindowExA
+		(
+			dwExStyle, lpClassName, lpWindowName, dwStyle, X, Y, nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam
+		);
+	}
+
+	BOOL DetoursX::HookTitleExA(LPCSTR lpRawTitle, LPCSTR lpPatchTitle)
+	{
+		g_lpPatchTitle = lpPatchTitle;
+		g_lpRawTitle = lpRawTitle;
+		return DetourAttachFunc(&RawCreateWindowExA, NewCreateWindowExA);
+	}
 }
 
 #endif // __DetoursX__

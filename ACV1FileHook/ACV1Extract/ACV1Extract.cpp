@@ -15,13 +15,8 @@ pLoadFile RawLoadFile = (pLoadFile)GetProcAddress(GetModuleHandleW(NULL), "loadF
 typedef DWORD(CDECL* pLoadScript)(DWORD dwHashHigh, DWORD dwHashLow, PBYTE* ppBuffer);
 pLoadScript RawLoadScript = nullptr;
 
-//This Func Is Called In LoadScript After fread();.
-//Rawbuffer Will Be Released When The Func Is Complete By Call free();.
-//LoadScript -> fopen -> fseek -> malloc -> fread -> fclose -> DecScript -> ProcessScript -> ret
-typedef DWORD(CDECL* pDecScript)(PBYTE pDecBuffer, PDWORD pdwDecSize, PBYTE pRawBuffer, DWORD dwRawSize);
-pDecScript RawDecScript = nullptr;
-
-typedef DWORD(CDECL* pProcScript)(PBYTE pScriptBuffer, DWORD dwScriptSize, PDWORD pFunc, PDWORD pRetStruct);
+//To Find This Func Search String "script/"
+typedef DWORD(CDECL* pProcScript)(PBYTE pScriptBuffer, DWORD dwScriptSize, PDWORD pFunc, PDWORD pRetStruct, LPCSTR lpString);
 pProcScript RawProcScript = nullptr;
 
 BOOL ACV1FileWrite(LPCSTR lpRelativePath, PBYTE* ppFileBuffer, PDWORD dwFileSize)
@@ -86,10 +81,9 @@ VOID ACV1FileExtract()
 	}
 }
 
-//for this engine if can't find the hash value of filename in pack, will read the file in game directory.
-//An error will be reported if the file does not exist in the directory either.
-//So I changed the file name path so that the engine could not search for the corresponding file in pack
-//and thus go to the directory to read the file
+//for this engine if can't find hash value of filename in pack, will read file in game directory.
+//An error will be reported if file does not exist in the directory either.
+//So change file path so that engine could not search for corresponding file in pack, and thus go to directory to read file
 static std::string g_lpFileHookFolder;
 DWORD ACV1FileHook(LPCSTR lpRelativePath, PBYTE* ppFileBuffer, PDWORD dwFileSize, PDWORD dwUnknow)
 {
@@ -111,7 +105,7 @@ DWORD ACV1LoadScript(DWORD dwHashHigh, DWORD dwHashLow, PBYTE* ppBuffer)
 }
 
 static std::string g_strScriptExtractFolder;
-DWORD ACV1ExtractScript(PBYTE pScriptBuffer, DWORD dwScriptSize, PDWORD pFunc, PDWORD pRetStruct)
+DWORD ACV1ExtractScript(PBYTE pScriptBuffer, DWORD dwScriptSize, PDWORD pFunc, PDWORD pRetStruct, LPCSTR lpString)
 {
 	HANDLE hFile = CreateFileA((g_strScriptExtractFolder + g_lpHashName).c_str(), GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 
@@ -124,11 +118,11 @@ DWORD ACV1ExtractScript(PBYTE pScriptBuffer, DWORD dwScriptSize, PDWORD pFunc, P
 		memset(g_lpHashName, 0, 0x11);
 	}
 
-	return RawProcScript(pScriptBuffer, dwScriptSize, pFunc, pRetStruct);
+	return RawProcScript(pScriptBuffer, dwScriptSize, pFunc, pRetStruct, lpString);
 }
 
 static std::string g_strScriptHookFolder;
-DWORD ACV1HookScript(PBYTE pScriptBuffer, DWORD dwScriptSize, PDWORD pFunc, PDWORD pRetStruct)
+DWORD ACV1HookScript(PBYTE pScriptBuffer, DWORD dwScriptSize, PDWORD pFunc, PDWORD pRetStruct, LPCSTR lpString)
 {
 	if (g_lpHashName[0])
 	{
@@ -142,7 +136,7 @@ DWORD ACV1HookScript(PBYTE pScriptBuffer, DWORD dwScriptSize, PDWORD pFunc, PDWO
 
 			if (size && alloc && ReadFile(hFile, alloc, size, NULL, NULL))
 			{
-				ret = RawProcScript(alloc, size, pFunc, pRetStruct);
+				ret = RawProcScript(alloc, size, pFunc, pRetStruct, lpString);
 				VirtualFree(alloc, NULL, MEM_RELEASE);
 			}
 
@@ -152,7 +146,7 @@ DWORD ACV1HookScript(PBYTE pScriptBuffer, DWORD dwScriptSize, PDWORD pFunc, PDWO
 		}
 	}
 
-	return RawProcScript(pScriptBuffer, dwScriptSize, pFunc, pRetStruct);
+	return RawProcScript(pScriptBuffer, dwScriptSize, pFunc, pRetStruct, lpString);
 }
 
 
@@ -187,6 +181,7 @@ VOID SetFileHook(LPCSTR lpFolder)
 	TDA::DetoursX::DetourAttachFunc(&RawLoadFile, ACV1FileHook);
 }
 
+//Dump all script at game startup
 VOID SetScriptDump(DWORD rvaLoadScript, DWORD rvaProcScript, LPCSTR lpFolder)
 {
 	TDA::ConsoleX::SetConsole(L"ACV1ScriptDump");
@@ -201,6 +196,7 @@ VOID SetScriptDump(DWORD rvaLoadScript, DWORD rvaProcScript, LPCSTR lpFolder)
 	TDA::DetoursX::DetourAttachFunc(&RawProcScript, ACV1ExtractScript);
 }
 
+//Read script without repack
 VOID SetScriptHook(DWORD rvaLoadScript, DWORD rvaProcScript, LPCSTR lpFolder)
 {
 	//TDA::ConsoleX::SetConsole(L"ACV1ScriptHook");

@@ -13,7 +13,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ACV1ScriptRename", "ACV1Scr
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ACV1TextEditor", "ACV1TextEditor\ACV1TextEditor.vcxproj", "{C549357A-687E-4FAF-BCB7-C347AB21E91D}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ACV1Extract", "..\Hanahime\HanaHime_cn\ACV1Extract\ACV1Extract.vcxproj", "{E580BDF6-7CF5-4E3B-8DE3-8D8A26335942}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ACV1Extract", "ACV1Extract\ACV1Extract.vcxproj", "{E580BDF6-7CF5-4E3B-8DE3-8D8A26335942}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

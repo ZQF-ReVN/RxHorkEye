@@ -82,11 +82,6 @@
   <ItemGroup>
     <ClCompile Include="ACV1FileHook.cpp" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ACV1Extract\ACV1Extract.vcxproj">
-      <Project>{e580bdf6-7cf5-4e3b-8de3-8d8a26335942}</Project>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

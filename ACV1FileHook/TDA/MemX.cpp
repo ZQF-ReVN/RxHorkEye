@@ -44,6 +44,21 @@ namespace TDA
 		return FALSE;
 	}
 
+	BOOL MemX::WriteHookCode_RET(DWORD dwRawAddress, DWORD dwRetAddress, DWORD dwNewAddress)
+	{
+		UCHAR code[0xF];
+		memset(code, 0x90, 0xF);
+
+		*(UCHAR*)(code + 0) = 0xE9;
+		*(DWORD*)(code + 1) = dwNewAddress - dwRawAddress - 5;
+
+		if (WriteMemory((LPVOID)dwRawAddress, &code, dwRetAddress - dwRawAddress)) return TRUE;
+
+		MessageBoxW(NULL, L"WriteHookCode Failed!!", NULL, NULL);
+
+		return FALSE;
+	}
+
 	BOOL MemX::SetHook(DWORD dwRawAddr, DWORD dwTarAddr, SIZE_T szRawSize)
 	{
 		DWORD old = 0;

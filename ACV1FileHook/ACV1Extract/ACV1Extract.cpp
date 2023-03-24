@@ -72,7 +72,7 @@ VOID ACV1FileExtract()
 		RawLoadFile(fileName.c_str(), &buffer, &size, &unknow);
 		if (ACV1FileWrite((g_strFileExtractFolder + fileName).c_str(), &buffer, &size))
 		{
-			TDA::ConsoleX::PutConsoleA("%s%s", "Extract:", fileName);
+			TDA::ConsoleX::PutConsoleA("Extract:%s\n", fileName);
 		}
 		else
 		{
@@ -187,6 +187,8 @@ VOID SetFileExtract(LPCSTR lpFolder)
 //Read files without repack
 VOID SetFileHook(LPCSTR lpFolder)
 {
+	//TDA::ConsoleX::SetConsole(L"ACV1FileHook");
+
 	g_lpFileHookFolder = lpFolder;
 	CreateDirectoryA(lpFolder, NULL);
 	TDA::DetoursX::DetourAttachFunc(&RawLoadFile, ACV1FileHook);

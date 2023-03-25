@@ -42,7 +42,7 @@ namespace TDA
 			uCodePage, NULL, msString.c_str(), static_cast<int>(msString.size()), NULL, NULL
 		);
 
-		if (charCount == 0) return 0;
+		if (charCount == 0) { wsString = L""; return 0; }
 
 		wsString.resize(charCount);
 
@@ -61,7 +61,7 @@ namespace TDA
 			uCodePage, NULL, wsString.c_str(), static_cast<int>(wsString.size()), NULL, NULL, NULL, NULL
 		);
 
-		if (wcharCount == 0) return 0;
+		if (wcharCount == 0) { msString = ""; return 0; }
 
 		msString.resize(wcharCount);
 

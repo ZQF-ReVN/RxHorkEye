@@ -4,21 +4,22 @@
 
 #include "ACV1TextEditor.h"
 #include "../TDA/EnumFiles.h"
-
+#include "../TDA/ConsoleX.h"
 
 int main()
 {
 	char flag = 0;
 	bool isInsetName = false;
-	std::wstring basePathW = L".\\";
-	std::size_t exCodePage = 932;
-	std::size_t inCodePage = 936;
+	std::size_t rawCodePage = 932;
+	std::size_t insCodePage = 936;
 
 	std::wcout
-		<< L"Input [ d ] to dump Text\n"
-		<< L"Input [ i ] to insert Text\n"
-		<< L"Input [ c ] to set CodePage\n"
-		<< L"Input [ n ] to replace text with role name [default not replace role name]\n\n";
+		<< L"Input [ e ] to Extract Text\n"
+		<< L"Input [ i ] to Insert  Text\n"
+		<< L"Input [ c ] to Set CodePage\n"
+		<< L"Input [ f ] to Format Text Line\n"
+		<< L"Input [ l ] to List All Character Name\n"
+		<< L"Input [ n ] to Replace text with role name [default not replace role name]\n\n";
 
 	ACV1::TextEditor editor;
 
@@ -27,24 +28,24 @@ int main()
 		std::wcout << L"\nInput:";
 		std::cin >> flag;
 
-		TDA::EnumFilesW enumFileW(basePathW);
-		std::vector<std::wstring>& filesNameListW = enumFileW.GetCurrentFilesName();
+		std::vector<std::wstring> fileNameList;
+		TDA::EnumFiles::GetAllFileNameW(L"", fileNameList);
 
 		switch (flag)
 		{
-		case 'd':
+		case 'e':
 		{
-			for (auto& strFileNameW : filesNameListW)
+			for (auto& fileName : fileNameList)
 			{
-				if (strFileNameW.find(L".", 2) != std::wstring::npos) continue;
+				if (fileName.find(L".", 2) != std::wstring::npos) continue;
 
-				if (editor.ExtractText(strFileNameW, exCodePage))
+				if (editor.ExtractText(fileName, rawCodePage))
 				{
-					std::wcout << L"Dump:" << strFileNameW << L'\n';
+					std::wcout << L"Dump:" << fileName << L'\n';
 				}
 				else
 				{
-					std::wcout << L"Failed:" << strFileNameW << L"\n\n";
+					std::wcout << L"Failed:" << fileName << L"\n\n";
 				}
 			}
 		}
@@ -52,17 +53,17 @@ int main()
 
 		case 'i':
 		{
-			for (auto& strFileNameW : filesNameListW)
+			for (auto& fileName : fileNameList)
 			{
-				if (strFileNameW.find(L".", 2) != std::wstring::npos) continue;
+				if (fileName.find(L".", 2) != std::wstring::npos) continue;
 
-				if (editor.InsertText(strFileNameW, inCodePage, isInsetName))
+				if (editor.InsertText(fileName, insCodePage, rawCodePage, isInsetName))
 				{
-					std::wcout << L"Inset:" << strFileNameW << L'\n';
+					std::wcout << L"Inset:" << fileName << L'\n';
 				}
 				else
 				{
-					std::wcout << L"Failed:" << strFileNameW << L"\n\n";
+					std::wcout << L"Failed:" << fileName << L"\n\n";
 				}
 			}
 		}
@@ -70,10 +71,10 @@ int main()
 
 		case 'c':
 		{
-			std::wcout << L"DumpCodePage:";
-			std::cin >> exCodePage;
-			std::wcout << L"InsetCodePage:";
-			std::cin >> inCodePage;
+			std::wcout << L"Original Script CodePage:";
+			std::cin >> rawCodePage;
+			std::wcout << L"Insert Text CodePage:";
+			std::cin >> insCodePage;
 		}
 		break;
 
@@ -84,24 +85,36 @@ int main()
 			break;
 		}
 
-		case 'g':
+		case 'l':
 		{
-			std::list<std::string> nameList;
+			std::list<std::wstring> nameList;
 
-			for (auto& strFileNameW : filesNameListW)
+			for (auto& strFileNameW : fileNameList)
 			{
-				if (strFileNameW.find(L".", 2) != std::wstring::npos) continue;
-
-				editor.GetCharactersName(strFileNameW, nameList);
+				if (strFileNameW.find(L".txt") == (strFileNameW.size() - 4))
+				{
+					editor.ListName(strFileNameW, nameList);
+				}
 			}
 
 			nameList.sort();
 			nameList.erase(unique(nameList.begin(), nameList.end()), nameList.end());
 
-			system("chcp 932");
 			for (auto& name : nameList)
 			{
-				std::cout << name << '\n';
+				TDA::ConsoleX::PutConsoleW(L"%s\n", name.c_str());
+			}
+		}
+		break;
+
+		case 'f':
+		{
+			for (auto& fileName : fileNameList)
+			{
+				if (fileName.find(L".txt") == (fileName.size() - 4))
+				{
+					editor.FormatLine(fileName);
+				}
 			}
 		}
 		break;

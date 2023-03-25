@@ -132,6 +132,7 @@
     <ClInclude Include="EnumFiles.h" />
     <ClInclude Include="FileX.h" />
     <ClInclude Include="DetoursX.h" />
+    <ClInclude Include="FormatLine.h" />
     <ClInclude Include="MemX.h" />
     <ClInclude Include="StringX.h" />
   </ItemGroup>
@@ -141,6 +142,7 @@
     <ClCompile Include="EnumFiles.cpp" />
     <ClCompile Include="FileX.cpp" />
     <ClCompile Include="DetoursX.cpp" />
+    <ClCompile Include="FormatLine.cpp" />
     <ClCompile Include="MemX.cpp" />
     <ClCompile Include="StringX.cpp" />
   </ItemGroup>

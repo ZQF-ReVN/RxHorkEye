@@ -42,6 +42,9 @@
     <ClInclude Include="DetoursX.h">
       <Filter>DetoursX</Filter>
     </ClInclude>
+    <ClInclude Include="FormatLine.h">
+      <Filter>StringX</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FileX.cpp">
@@ -64,6 +67,9 @@
     </ClCompile>
     <ClCompile Include="DetoursX.cpp">
       <Filter>DetoursX</Filter>
+    </ClCompile>
+    <ClCompile Include="FormatLine.cpp">
+      <Filter>StringX</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

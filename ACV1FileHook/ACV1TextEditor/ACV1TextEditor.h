@@ -1,9 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
-#include <map>
 #include <list>
-#include <tuple>
 
 namespace ACV1
 {
@@ -11,24 +9,24 @@ namespace ACV1
 	{
 	private:
 		std::wstring m_wsFile;
-		std::vector<std::string> m_vecRawLine;
-		std::map<std::size_t, std::wstring> m_mapTraLine;
+		std::vector<std::pair<std::size_t, std::wstring>> m_vecRawLine;
+		std::vector<std::pair<std::size_t, std::wstring>> m_vecTraLine;
 
 	private:
 		bool ReadTransLine();
-		bool ReadRawLine();
-		bool ReplaceLine(size_t uCodePage, bool isInsetName);
-		bool WriteBackLine();
-		size_t FindCharacterName(std::string& msText);
+		bool ReadRawLine(size_t uCodePage);
+		bool ReplaceLine(bool isInsertName);
+		bool WriteBackLine(size_t uInsCodePage, size_t uRawCodePage);
+		size_t FindCharacterName(std::wstring& wsText);
 
 	public:
 		TextEditor();
 		~TextEditor();
 
 		bool ExtractText(std::wstring& wsFileName, size_t uCodePage);
-		bool InsertText(std::wstring& wsFileName, size_t uCodePage, bool isInsetName);
-		bool GetCharactersName(std::wstring& wsFileName, std::list<std::string>& listName);
+		bool InsertText(std::wstring& wsFileName, size_t uInsCodePage, size_t uRawCodePage, bool isInsertName);
+		bool ListName(std::wstring& wsFileName, std::list<std::wstring>& listName);
+		bool FormatLine(std::wstring& wsFileName);
 	};
-
 }
 

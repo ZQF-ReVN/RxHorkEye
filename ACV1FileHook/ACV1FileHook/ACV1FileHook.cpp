@@ -3,7 +3,7 @@
 VOID Start()
 {
 	//Attention!! Only one of the three functions can be called at a time
-	SetFileDump("Dump/");
+	//SetFileDump("Dump/");
 	//SetFileExtract("Extract/");
 	//SetFileHook("FileHook/");
 	

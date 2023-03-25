@@ -1,7 +1,9 @@
 #include "ACV1TextEditor.h"
 #include "../TDA/StringX.h"
 #include "../TDA/ConsoleX.h"
+#include "../TDA/FormatLine.h"
 
+#include <array>
 #include <iomanip>
 #include <fstream>
 #include <iostream>
@@ -55,89 +57,121 @@ namespace ACV1
 				return false;
 			}
 
-			m_mapTraLine[pos] = line.substr(0x4);
+			m_vecTraLine.emplace_back(std::make_pair(pos, line.substr(4)));
 		}
 
 		return true;
 	}
 
-	bool TextEditor::ReadRawLine()
+	bool TextEditor::ReadRawLine(size_t uCodePage)
 	{
 		std::ifstream ifsScript(m_wsFile);
 		if (!ifsScript.is_open()) return false;
 
+		std::wstring wLine;
 		for (std::string line; getline(ifsScript, line);)
 		{
-			m_vecRawLine.emplace_back(line);
+			TDA::StringX::StrToWStr(line, wLine, uCodePage);
+			m_vecRawLine.emplace_back(std::make_pair(0, wLine));
 		}
 
 		return true;
 	}
 
-	size_t TextEditor::FindCharacterName(std::string& msText)
+	bool TextEditor::ReplaceLine(bool isInsertName)
 	{
-		static const uint8_t token0[] = { 0x81,0x7A,0x81,0x75,0x00 };
-		static const uint8_t token1[] = { 0x81,0x7A,0x81,0x69,0x00 };
-		static const uint8_t token2[] = { 0x81,0x7A,0x81,0x77,0x00 };
-
-		size_t pos = 0;
-		if ((uint8_t)msText[0] == 0x81 && (uint8_t)msText[1] == 0x79)
+		size_t nameLen = std::wstring::npos;
+		std::wstring nameTra, nameRaw;
+		for (auto& iteTra : m_vecTraLine)
 		{
-			pos = msText.find((char*)token0, 2);
-			if (pos != std::string::npos) return pos + 2;
-
-			pos = msText.find((char*)token1, 2);
-			if (pos != std::string::npos) return pos + 2;
-
-			pos = msText.find((char*)token2, 2);
-			if (pos != std::string::npos) return pos + 2;
-
-			TDA::ConsoleX::PutConsoleW(L"File :%s\n", m_wsFile.c_str());
-			TDA::ConsoleX::PutConsoleW(L"Line :%s\n", TDA::StringX::StrToWStr(msText,932).c_str());
-			TDA::ConsoleX::PutConsoleW(L"Error:%s\n\n", L"Find Character Name");
-		}
-
-		return std::string::npos;
-	}
-
-	bool TextEditor::ReplaceLine(size_t uCodePage, bool isInsertName)
-	{
-		std::string traText;
-		std::size_t size = std::string::npos;
-		for (auto& iteTra : m_mapTraLine)
-		{
-			std::string& rawText = m_vecRawLine[iteTra.first - 1]; 
-			if (rawText.size() < 2) continue;
-
-			traText = TDA::StringX::WStrToStr(iteTra.second, uCodePage);
-
 			if (!isInsertName)
 			{
-				size = FindCharacterName(rawText);
-				if (size != std::string::npos)
+				nameLen = FindCharacterName(iteTra.second);
+				if (nameLen != std::wstring::npos)
 				{
-					traText = rawText.substr(0, size) + traText.substr(size);
+					nameTra = iteTra.second.substr(0, nameLen);
+					nameRaw = m_vecRawLine[iteTra.first - 1].second.substr(0, nameLen);
+					if (nameTra != nameRaw)
+					{
+						TDA::ConsoleX::PutConsoleW(L"File :%s\n", m_wsFile.c_str());
+						TDA::ConsoleX::PutConsoleW(L"Line :%s\n", iteTra.second);
+						TDA::ConsoleX::PutConsoleW(L"Error:%s\n\n", L"Name Not Match");
+						return false;
+					}
 				}
 			}
 
-			rawText = traText;
+			m_vecRawLine[iteTra.first - 1].first = nameLen;
+			m_vecRawLine[iteTra.first - 1].second = iteTra.second;
 		}
 
 		return true;
 	}
 
-	bool TextEditor::WriteBackLine()
+	bool TextEditor::WriteBackLine(size_t uInsCodePage, size_t uRawCodePage)
 	{
 		std::ofstream ofsScript(m_wsFile + L".new", std::ios::binary);
 		if (!ofsScript.is_open()) return false;
 
+		std::size_t sizeName = 0;
+		std::wstring nameUTF16, textUTF16;
+		std::string nameRawEcode, textNewEcode, outLine;
 		for (auto& iteLine : m_vecRawLine)
 		{
-			ofsScript << iteLine << '\n';
+			if (iteLine.first)
+			{
+				if (iteLine.first != std::wstring::npos)
+				{
+					sizeName = iteLine.first;
+					textUTF16 = iteLine.second.substr(sizeName);
+					nameUTF16 = iteLine.second.substr(0, sizeName);
+					textNewEcode = TDA::StringX::WStrToStr(textUTF16, uInsCodePage);
+					nameRawEcode = TDA::StringX::WStrToStr(nameUTF16, uRawCodePage);
+
+					outLine = nameRawEcode + textNewEcode;
+				}
+				else
+				{
+					outLine = TDA::StringX::WStrToStr(iteLine.second, uInsCodePage);
+				}
+			}
+			else
+			{
+				outLine = TDA::StringX::WStrToStr(iteLine.second, uRawCodePage);
+			}
+
+			ofsScript << outLine << '\n';
 		}
 
 		ofsScript.flush();
 		return true;
+	}
+
+	size_t TextEditor::FindCharacterName(std::wstring& wsText)
+	{
+		static const wchar_t* token0 = L"¡¿¡¸";
+		static const wchar_t* token1 = L"¡¿£¨";
+		static const wchar_t* token2 = L"¡¿¡º";
+
+		size_t pos = 0;
+
+		if (wsText[0] == L'¡¾')
+		{
+			pos = wsText.find(token0, 2);
+			if (pos != std::string::npos) return pos + 1;
+
+			pos = wsText.find(token1, 2);
+			if (pos != std::string::npos) return pos + 1;
+
+			pos = wsText.find(token2, 2);
+			if (pos != std::string::npos) return pos + 1;
+
+			TDA::ConsoleX::PutConsoleW(L"File :%s\n", m_wsFile.c_str());
+			TDA::ConsoleX::PutConsoleW(L"Line :%s\n", wsText.c_str());
+			TDA::ConsoleX::PutConsoleW(L"Error:%s\n\n", L"Find Character Name");
+		}
+
+		return std::string::npos;
 	}
 
 
@@ -171,11 +205,11 @@ namespace ACV1
 		return true;
 	}
 
-	bool TextEditor::InsertText(std::wstring& wsFileName, size_t uCodePage, bool isInsertName)
+	bool TextEditor::InsertText(std::wstring& wsFileName, size_t uInsCodePage, size_t uRawCodePage, bool isInsertName)
 	{
 		m_wsFile = wsFileName;
-		std::vector<std::string>().swap(m_vecRawLine);
-		std::map<std::size_t, std::wstring>().swap(m_mapTraLine);
+		std::vector<std::pair<std::size_t, std::wstring>>().swap(m_vecRawLine);
+		std::vector<std::pair<std::size_t, std::wstring>>().swap(m_vecTraLine);
 
 		if (!ReadTransLine())
 		{
@@ -184,21 +218,21 @@ namespace ACV1
 			return false;
 		}
 
-		if (!ReadRawLine())
+		if (!ReadRawLine(uRawCodePage))
 		{
 			TDA::ConsoleX::PutConsoleW(L"File :%s\n", m_wsFile.c_str());
 			TDA::ConsoleX::PutConsoleW(L"Error:%s\n\n", L"ReadRawLine");
 			return false;
 		}
 
-		if (!ReplaceLine(uCodePage, isInsertName))
+		if (!ReplaceLine(isInsertName))
 		{
 			TDA::ConsoleX::PutConsoleW(L"File :%s\n", m_wsFile.c_str());
 			TDA::ConsoleX::PutConsoleW(L"Error:%s\n\n", L"ReplaceLine");
 			return false;
 		}
 
-		if (!WriteBackLine())
+		if (!WriteBackLine(uInsCodePage, uRawCodePage))
 		{
 			TDA::ConsoleX::PutConsoleW(L"File :%s\n", m_wsFile.c_str());
 			TDA::ConsoleX::PutConsoleW(L"Error:%s\n\n", L"WriteBackLine");
@@ -208,27 +242,30 @@ namespace ACV1
 		return true;
 	}
 
-	bool TextEditor::GetCharactersName(std::wstring& wsFileName, std::list<std::string>& listName)
+	bool TextEditor::ListName(std::wstring& wsFileName, std::list<std::wstring>& listName)
 	{
-		std::ifstream ifs(wsFileName);
-		if (!ifs.is_open()) return false;
+		std::wifstream wifs(wsFileName);
+		wifs.imbue(TDA::StringX::GetCVT_UTF8());
+		if (!wifs.is_open()) return false;
 
-		size_t size = std::string::npos;
-		for (std::string line; getline(ifs, line);)
+		for (std::wstring line; getline(wifs, line);)
 		{
-			if (line.size() < 2) continue;
+			if (line.find(L"Raw:") == std::wstring::npos) continue;
 
-			size = FindCharacterName(line);
-			if (size == std::string::npos) continue;
+			// erase "Raw:"
+			line.erase(0, 4);
 
-			line = line.substr(2, size - 4);
+			size_t nameLen = FindCharacterName(line);
+			if (nameLen == std::string::npos) continue;
 
-			for (size_t iteChar = 0; iteChar < line.size(); iteChar++)
+			// erase ¡¾ ¡¿
+			line = line.substr(1, nameLen - 2);
+
+			size_t pox = line.find(L",");
+			if (pox != std::wstring::npos)
 			{
-				if ((uint8_t)line[iteChar] > 0x7F) { iteChar++; continue; }
-				if ((uint8_t)line[iteChar] != 0x2C) continue;
-				line = line.substr(0, iteChar);
-				break;
+				// Get Pure Name
+				line = line.substr(0, pox);
 			}
 
 			listName.emplace_back(line);
@@ -236,6 +273,60 @@ namespace ACV1
 
 		return true;
 	}
+
+	bool TextEditor::FormatLine(std::wstring& wsFileName)
+	{
+		std::wofstream wofsText(wsFileName + L".new");
+		std::wifstream wifsText(wsFileName);
+		wifsText.imbue(TDA::StringX::GetCVT_UTF8());
+		wofsText.imbue(TDA::StringX::GetCVT_UTF8());
+		if (!wifsText.is_open() && !wofsText.is_open()) return false;
+
+		TDA::FormatLine formatLine(L"[n]", { L"¡£", L"£¿", L"£¬", L"¡¢" });
+
+		for (std::wstring line; std::getline(wifsText, line);)
+		{
+			if (line.find(L"Tra:") == 0)
+			{
+				//erase "Tra:"
+				line.erase(0, 4);
+
+				//erase [n]
+				for (; ;)
+				{
+					size_t pos = line.find(L"[n]");
+					if (pos == std::wstring::npos) break;
+					line.erase(pos, 3);
+				}
+
+				//break line
+				size_t nameLen = FindCharacterName(line);
+				if (nameLen != std::wstring::npos)
+				{
+					std::wstring copyLine = line.substr(nameLen);
+					if (formatLine.BreakLine(copyLine, 32))
+					{
+						line = line.substr(0, nameLen) + copyLine;
+					}
+				}
+				else
+				{
+					formatLine.BreakLine(line, 32);
+				}
+
+				line = L"Tra:" + line;
+			}
+
+			wofsText << line << L'\n';
+		}
+
+		wofsText.flush();
+
+		return true;
+	}
+
+
+
 }
 
 

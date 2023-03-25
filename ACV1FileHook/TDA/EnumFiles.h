@@ -5,38 +5,14 @@
 
 namespace TDA
 {
-	class EnumFilesA
+	class EnumFiles
 	{
 	public:
-		EnumFilesA(std::string& strBasePath);
+		static bool GetAllFilesPathA(std::string msBasePath, std::vector<std::string>& vecList);
+		static bool GetAllFileNameA(std::string msBasePath, std::vector<std::string>& vecList);
 
-		std::vector<std::string>& GetAllFilesName();
-		std::vector<std::string>& GetAllFilesNameRelaPath();
-		std::vector<std::string>& GetCurrentFilesName();
-	private:
-		bool FindFiles(std::string);
-
-		std::string m_strBasePath;
-		std::vector<std::string> m_vstrAllFileNameList;
-		std::vector<std::string> m_vstrAllFileNameRelaPathList;
-		std::vector<std::string> m_vstrCurrentFileNameList;
-	};
-
-	class EnumFilesW
-	{
-	public:
-		EnumFilesW(std::wstring& strBasePath);
-
-		std::vector<std::wstring>& GetAllFilesName();
-		std::vector<std::wstring>& GetAllFilesNameRelaPath();
-		std::vector<std::wstring>& GetCurrentFilesName();
-	private:
-		bool FindFiles(std::wstring);
-
-		std::wstring m_strBasePath;
-		std::vector<std::wstring> m_vwstrAllFileNameList;
-		std::vector<std::wstring> m_vwstrAllFileNameRelaPathList;
-		std::vector<std::wstring> m_vwstrCurrentFileNameList;
+		static bool GetAllFilesPathW(std::wstring wsBasePath, std::vector<std::wstring>& vecList);
+		static bool GetAllFileNameW(std::wstring wsBasePath, std::vector<std::wstring>& vecList);
 	};
 }
 

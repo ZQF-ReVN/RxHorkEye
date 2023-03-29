@@ -147,6 +147,23 @@ namespace ACV1
 		return true;
 	}
 
+	bool TextEditor::Filter(std::wstring& wsString)
+	{
+		if (wsString.find(L"CS \"") == 0) { return true; }
+		if (wsString.find(L"SELECT \"") == 0) { return true; };
+		if (wsString.find(L"SELECT2 \"") == 0) { return true; };
+
+		return false;
+	}
+
+	bool TextEditor::Filter(std::string& msString, size_t uCodePage)
+	{
+		std::wstring wsString;
+		TDA::StringX::StrToWStr(msString, wsString, uCodePage);
+		
+		return Filter(wsString);
+	}
+
 	size_t TextEditor::FindCharacterName(std::wstring& wsText)
 	{
 		static const wchar_t* token0 = L"¡¿¡¸";
@@ -188,7 +205,7 @@ namespace ACV1
 			if (line.empty()) continue;
 			if ((uint8_t)line[0] < (uint8_t)0x7B)
 			{
-				if (line.find("CS \"") != 0 || line.find("SELECT \"") != 0) continue;
+				if (!Filter(line, uCodePage)) continue;
 			}
 
 			wsLine = TDA::StringX::StrToWStr(line, uCodePage);
@@ -284,40 +301,50 @@ namespace ACV1
 
 		TDA::FormatLine formatLine(L"[n]", { L"¡£", L"£¿", L"£¬", L"¡¢" });
 
+		std::wstring copyLine;
 		for (std::wstring line; std::getline(wifsText, line);)
 		{
-			if (line.find(L"Tra:") == 0)
+			//Check Tra: Line
+			if (line.find(L"Tra:") != 0)
 			{
-				//erase "Tra:"
-				line.erase(0, 4);
-
-				//erase [n]
-				for (; ;)
-				{
-					size_t pos = line.find(L"[n]");
-					if (pos == std::wstring::npos) break;
-					line.erase(pos, 3);
-				}
-
-				//break line
-				size_t nameLen = FindCharacterName(line);
-				if (nameLen != std::wstring::npos)
-				{
-					std::wstring copyLine = line.substr(nameLen);
-					if (formatLine.BreakLine(copyLine, 32))
-					{
-						line = line.substr(0, nameLen) + copyLine;
-					}
-				}
-				else
-				{
-					formatLine.BreakLine(line, 32);
-				}
-
-				line = L"Tra:" + line;
+				wofsText << line << L'\n';
+				continue;
 			}
 
-			wofsText << line << L'\n';
+			//erase "Tra:"
+			line.erase(0, 4);
+
+			//Check Code Line
+			if (Filter(line))
+			{
+				wofsText << L"Tra:" << line << L'\n';
+				continue;
+			}
+
+			//Erase [n]
+			for (; ;)
+			{
+				size_t pos = line.find(L"[n]");
+				if (pos == std::wstring::npos) break;
+				line.erase(pos, 3);
+			}
+
+			//Break Line
+			size_t nameLen = FindCharacterName(line);
+			if (nameLen != std::wstring::npos)
+			{
+				copyLine = line.substr(nameLen);
+				if (formatLine.BreakLine(copyLine, 32))
+				{
+					line = line.substr(0, nameLen) + copyLine;
+				}
+			}
+			else
+			{
+				formatLine.BreakLine(line, 32);
+			}
+
+			wofsText << L"Tra:" << line << L'\n';
 		}
 
 		wofsText.flush();
@@ -325,11 +352,4 @@ namespace ACV1
 		return true;
 	}
 
-
-
 }
-
-
-
-
-

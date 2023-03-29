@@ -17,6 +17,8 @@ namespace ACV1
 		bool ReadRawLine(size_t uCodePage);
 		bool ReplaceLine(bool isInsertName);
 		bool WriteBackLine(size_t uInsCodePage, size_t uRawCodePage);
+		bool Filter(std::wstring& wsString);
+		bool Filter(std::string& msString, size_t uCodePage);
 		size_t FindCharacterName(std::wstring& wsText);
 
 	public:

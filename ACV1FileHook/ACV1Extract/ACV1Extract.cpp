@@ -166,7 +166,8 @@ DWORD ACV1ScriptHook(PBYTE pScriptBuffer, DWORD dwScriptSize, PDWORD pFunc, PDWO
 				g_dwAllocSize = szNewScript;
 			}
 
-			if (ReadFile(hFile, g_pAllocBuffer, szNewScript, NULL, NULL) && szNewScript)
+			DWORD read = 0;
+			if (ReadFile(hFile, g_pAllocBuffer, szNewScript, &read, NULL) && szNewScript)
 			{
 				pScriptBuffer = g_pAllocBuffer;
 				dwScriptSize = szNewScript;

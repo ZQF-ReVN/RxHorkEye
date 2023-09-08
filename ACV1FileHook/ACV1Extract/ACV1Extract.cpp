@@ -13,8 +13,8 @@ static DWORD g_dwExeBase = (DWORD)GetModuleHandleW(NULL);
 typedef DWORD(CDECL* pLoadFile)(LPCSTR lpFileName, PBYTE* ppFileBuffer, PDWORD dwFileSize, PDWORD dwUnknow);
 pLoadFile RawLoadFile = (pLoadFile)GetProcAddress(GetModuleHandleW(NULL), "loadFile");
 
-typedef DWORD(CDECL* pLoadFile2)(LPCSTR lpFileName, LPVOID* pInfo);
-pLoadFile2 RawLoadFile2 = NULL;
+//typedef DWORD(CDECL* pLoadFile2)(LPCSTR lpFileName, LPVOID* pInfo);
+//pLoadFile2 RawLoadFile2 = NULL;
 
 //To Find This Func Search String "Script.dat"
 typedef DWORD(CDECL* pLoadScript)(DWORD dwHashHigh, DWORD dwHashLow, PBYTE* ppBuffer);
@@ -113,11 +113,13 @@ DWORD ACV1FileHook(LPCSTR lpRelativePath, PBYTE* ppFileBuffer, PDWORD dwFileSize
 	return RawLoadFile(lpRelativePath, ppFileBuffer, dwFileSize, dwUnknow);
 }
 
+/*
 DWORD ACV1FileHook2(LPCSTR lpRelativePath, LPVOID* pInfo)
 {
 	if (FileExist(lpRelativePath)) lpRelativePath = g_lpFileHookPath;
 	return RawLoadFile2(lpRelativePath, pInfo);
 }
+*/
 
 static CHAR g_lpHashName[0x11] = { 0 };
 DWORD ACV1ScriptLoad(DWORD dwHashHigh, DWORD dwHashLow, PBYTE* ppBuffer)
@@ -205,16 +207,17 @@ VOID SetFileExtract(LPCSTR lpFolder)
 }
 
 //Read files without repack
-VOID SetFileHook(LPCSTR lpFolder, DWORD rvaLoadFile2)
+//VOID SetFileHook(LPCSTR lpFolder, DWORD rvaLoadFile2)
+VOID SetFileHook(LPCSTR lpFolder)
 {
 	//TDA::ConsoleX::SetConsole(L"ACV1FileHook");
 
 	CreateDirectoryA(lpFolder, NULL);
 
 	g_lpFileHookFolder = lpFolder;
-	RawLoadFile2 = (pLoadFile2)(g_dwExeBase + rvaLoadFile2);
+	//RawLoadFile2 = (pLoadFile2)(g_dwExeBase + rvaLoadFile2);
 	TDA::DetoursX::DetourAttachFunc(&RawLoadFile, ACV1FileHook);
-	TDA::DetoursX::DetourAttachFunc(&RawLoadFile2, ACV1FileHook2);
+	//TDA::DetoursX::DetourAttachFunc(&RawLoadFile2, ACV1FileHook2);
 }
 
 //Extract script at startup

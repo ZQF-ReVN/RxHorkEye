@@ -77,17 +77,17 @@ bool __cdecl ACV__VFS__Media__Read(void *cpFilePath, uint32_t **ppBuffer, size_t
 
 
 
-## ACV::VFS::Lua::Read
+## ACV::VFS::Nut::Read
 
 ```C
-bool __cdecl ACV__VFS__Lua__Read(const char *cpFilePath, ACV_STD_String *pScriptStr)
+bool __cdecl ACV__VFS__Nut__Read(const char *cpFilePath, ACV_STD_String *pScriptStr)
 ```
 
-概述：读取`lua`脚本
+概述：读取`nut`脚本,即SQuirrel脚本
 
 参数一：文件路径字符串
 
-参数二：`ACV_STD_String`指针，指向`std::string`用于存储`lua`脚本字符串
+参数二：`ACV_STD_String`指针，指向`std::string`用于存储`nut`脚本字符串
 
 流程概述：
 

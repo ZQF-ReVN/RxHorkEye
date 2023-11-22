@@ -26,7 +26,7 @@ namespace ACV
 
 	typedef FILE* (__cdecl* Fn_VFSOpenFile)(const char* cpPath, uint32_t* pSize_Ret, ACV_Hash* pHash_Ret);
 
-	typedef bool (__cdecl* Fn_VFSLuaRead)(const char* cpPath, ACV_STD_String* pScriptStr_Ret);
+	typedef bool (__cdecl* Fn_VFSNutRead)(const char* cpPath, ACV_STD_String* pScriptStr_Ret);
 	typedef bool (__cdecl* Fn_VFSScriptRead)(uint32_t nHashL, uint32_t nHashH, uint32_t* pCompile);
 	typedef bool (__cdecl* Fn_VFSMediaRead)(const char* cpPath, void** ppBuffer, size_t* pSize_Ret, uint32_t* pBufferMaxSize);
 

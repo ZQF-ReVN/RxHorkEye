@@ -11,22 +11,22 @@ namespace ACV::VFS
 {
 	static ACV_Hash sg_ScriptHash = { 0 };
 	static char sg_aDumpFolder[MAX_PATH] = "./Dump/";
-	static Fn_VFSLuaRead sg_fnVFSLuaRead = nullptr;
+	static Fn_VFSNutRead sg_fnVFSNutRead = nullptr;
 	static Fn_VFSMediaRead sg_fnVFSMediaRead = nullptr;
 	static Fn_VFSScriptRead sg_fnVFSScriptRead = nullptr;
 	static Fn_ScriptCompile sg_fnScriptCompile = nullptr;
 
 
-	static bool __cdecl VFSLuaRead_Hook(const char* cpPath, ACV_STD_String* pScriptStr_Ret)
+	static bool __cdecl VFSNutRead_Hook(const char* cpPath, ACV_STD_String* pScriptStr_Ret)
 	{
-		bool status = sg_fnVFSLuaRead(cpPath, pScriptStr_Ret);
+		bool status = sg_fnVFSNutRead(cpPath, pScriptStr_Ret);
 		if (status == true)
 		{
 			char full_dump_path[MAX_PATH];
 			strcpy_s(full_dump_path, MAX_PATH, sg_aDumpFolder);
 			strcat_s(full_dump_path, MAX_PATH, cpPath);
-			char* lua_script_ptr = (pScriptStr_Ret->uiLen > 15) ? (pScriptStr_Ret->pStr) : (pScriptStr_Ret->aStr);
-			Rut::RxFile::SaveFileViaPath(full_dump_path, lua_script_ptr, pScriptStr_Ret->uiLen);
+			char* nut_script_ptr = (pScriptStr_Ret->uiLen > 15) ? (pScriptStr_Ret->pStr) : (pScriptStr_Ret->aStr);
+			Rut::RxFile::SaveFileViaPath(full_dump_path, nut_script_ptr, pScriptStr_Ret->uiLen);
 		}
 		return status;
 	}
@@ -77,19 +77,19 @@ namespace ACV::VFS
 
 
 
-	void SetDump(uint32_t fnVFSMediaRead, uint32_t fnVFSScriptRead, uint32_t fnVFSLuaRead, uint32_t fnScriptCompile)
+	void SetDump(uint32_t fnVFSMediaRead, uint32_t fnVFSScriptRead, uint32_t fnVFSNutRead, uint32_t fnScriptCompile)
 	{
 		Rut::RxPath::MakeDirViaPath(sg_aDumpFolder);
 
 		sg_fnVFSMediaRead = (Fn_VFSMediaRead)fnVFSMediaRead;
 		sg_fnVFSScriptRead = (Fn_VFSScriptRead)fnVFSScriptRead;
 		sg_fnScriptCompile = (Fn_ScriptCompile)fnScriptCompile;
-		sg_fnVFSLuaRead = (Fn_VFSLuaRead)fnVFSLuaRead;
+		sg_fnVFSNutRead = (Fn_VFSNutRead)fnVFSNutRead;
 
 		Rut::RxHook::DetourAttachFunc(&sg_fnVFSMediaRead, VFSMediaRead_Hook);
 		Rut::RxHook::DetourAttachFunc(&sg_fnVFSScriptRead, VFSScriptRead_Hook);
 		Rut::RxHook::DetourAttachFunc(&sg_fnScriptCompile, ScriptCompile_Hook);
-		Rut::RxHook::DetourAttachFunc(&sg_fnVFSLuaRead, VFSLuaRead_Hook);
+		Rut::RxHook::DetourAttachFunc(&sg_fnVFSNutRead, VFSNutRead_Hook);
 	}
 
 	void SetDumpFolder(const char* cpFolder)

@@ -11,7 +11,7 @@
 namespace ACV::VFS
 {
 	static char sg_aExtractFolder[MAX_PATH] = "./Extract/";
-	static Fn_VFSLuaRead sg_fnVFSLuaRead = nullptr;
+	static Fn_VFSNutRead sg_fnVFSNutRead = nullptr;
 	static Fn_VFSMediaRead sg_fnVFSMediaRead = nullptr;
 
 	static void ExtractThread()
@@ -33,14 +33,14 @@ namespace ACV::VFS
 				return false;
 			};
 
-		auto fn_extract_lua = [](std::string_view msPath) -> bool
+		auto fn_extract_nut = [](std::string_view msPath) -> bool
 			{
 				ACV_STD_String std_string = { 0 };
 
 				char full_extract_path[MAX_PATH];
 				strcpy_s(full_extract_path, MAX_PATH, sg_aExtractFolder); strcat_s(full_extract_path, MAX_PATH, msPath.data());
 
-				if (sg_fnVFSLuaRead(msPath.data(), &std_string))
+				if (sg_fnVFSNutRead(msPath.data(), &std_string))
 				{
 					Rut::RxFile::SaveFileViaPath(full_extract_path, (std_string.uiLen > 15) ? (std_string.pStr) : (std_string.aStr), std_string.uiLen);
 					return true;
@@ -60,26 +60,26 @@ namespace ACV::VFS
 				std::cin >> file_path;
 				std::cout << fn_extract_media(file_path) ? "Success!\n" : "Failed!\n";
 			}
-			else if (command == "ext.lua")
+			else if (command == "ext.nut")
 			{
 				std::cout << "FilePath:";
 				std::cin >> file_path;
-				std::cout << fn_extract_lua(file_path) ? "Success!\n" : "Failed!\n";
+				std::cout << fn_extract_nut(file_path) ? "Success!\n" : "Failed!\n";
 			}
 			else if (command == "help")
 			{
 				std::cout << "\tcommand:ext.media\n";
-				std::cout << "\tcommand:ext.lua\n\n";
+				std::cout << "\tcommand:ext.nut\n\n";
 			}
 			std::cout << std::endl;
 		}
 	}
 
 
-	void SetExtract(uint32_t fnVFSLoadMedia, uint32_t fnVFSLuaRead)
+	void SetExtract(uint32_t fnVFSLoadMedia, uint32_t fnVFSNutRead)
 	{
+		sg_fnVFSNutRead = (Fn_VFSNutRead)fnVFSNutRead;
 		sg_fnVFSMediaRead = (Fn_VFSMediaRead)fnVFSLoadMedia;
-		sg_fnVFSLuaRead = (Fn_VFSLuaRead)fnVFSLuaRead;
 
 		Rut::RxPath::MakeDirViaPath(sg_aExtractFolder);
 		Rut::RxConsole::Alloc(L"ACV Extract", true, false);

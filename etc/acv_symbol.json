@@ -2,7 +2,7 @@
     "game_title": "宿星のガールフレンド 芙慈子編",
     "game_version": "1.0",
     "game_engine": "ACV",
-    "export_time": "2023-11-23 00:19:20.067456",
+    "export_time": "2023-11-23 01:01:50.316606",
     "func_list": [
         {
             "name": "ACV::STD::String::Add",
@@ -321,7 +321,7 @@
             "addr": "0x4cbb60"
         },
         {
-            "name": "ACV::VFS::Lua::Read",
+            "name": "ACV::VFS::Nut::Read",
             "addr": "0x4cc020"
         },
         {
@@ -333,7 +333,7 @@
             "addr": "0x4cc4e0"
         },
         {
-            "name": "ACV::Script::LoadLua",
+            "name": "ACV::Nut::Load",
             "addr": "0x4cd320"
         },
         {
@@ -405,7 +405,7 @@
             "addr": "0x4d5410"
         },
         {
-            "name": "ACV::Script::LoadLua2",
+            "name": "ACV::Nut::Load2",
             "addr": "0x4d5770"
         },
         {
@@ -497,7 +497,7 @@
             "addr": "0x5455c9"
         },
         {
-            "name": "ACV::Lua::Compile",
+            "name": "ACV::Nut::Compile",
             "addr": "0x56a6a0"
         },
         {

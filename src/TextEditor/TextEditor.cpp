@@ -1,4 +1,4 @@
-﻿#include "ACV_TextEditor.h"
+﻿#include "TextEditor.h"
 #include "../../Rut/RxStr.h"
 #include "../../Rut/RxFile.h"
 #include "../../Rut/RxConsole.h"
@@ -8,7 +8,7 @@
 #include <iostream>
 
 
-namespace ACV::Text
+namespace HorkEye::Text
 {
 	TextEditor::TextEditor()
 	{

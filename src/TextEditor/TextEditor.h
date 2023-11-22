@@ -3,7 +3,7 @@
 #include <vector>
 #include <list>
 
-namespace ACV::Text
+namespace HorkEye::Text
 {
 	class TextEditor
 	{

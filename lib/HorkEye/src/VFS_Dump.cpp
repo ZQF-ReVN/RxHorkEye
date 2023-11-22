@@ -1,5 +1,5 @@
-#include "ACV_VFS_Dump.h"
-#include "ACV_Types.h"
+#include "VFS_Dump.h"
+#include "Types.h"
 #include "../../Rut/RxPath.h"
 #include "../../Rut/RxFile.h"
 #include "../../RxHook/RxHook.h"
@@ -7,9 +7,9 @@
 #include <Windows.h>
 
 
-namespace ACV::VFS
+namespace HorkEye::VFS
 {
-	static ACV_Hash sg_ScriptHash = { 0 };
+	static CRC64 sg_ScriptHash = { 0 };
 	static char sg_aDumpFolder[MAX_PATH] = "./Dump/";
 	static Fn_VFSNutRead sg_fnVFSNutRead = nullptr;
 	static Fn_VFSMediaRead sg_fnVFSMediaRead = nullptr;
@@ -17,7 +17,7 @@ namespace ACV::VFS
 	static Fn_ScriptCompile sg_fnScriptCompile = nullptr;
 
 
-	static bool __cdecl VFSNutRead_Hook(const char* cpPath, ACV_STD_String* pScriptStr_Ret)
+	static bool __cdecl VFSNutRead_Hook(const char* cpPath, STD_String* pScriptStr_Ret)
 	{
 		bool status = sg_fnVFSNutRead(cpPath, pScriptStr_Ret);
 		if (status == true)

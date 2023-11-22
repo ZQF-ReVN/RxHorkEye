@@ -2,7 +2,7 @@
 #include <iostream>
 #include <algorithm>
 
-#include "ACV1TextEditor.h"
+#include "TextEditor.h"
 
 int main()
 {
@@ -19,7 +19,7 @@ int main()
 		<< L"Input [ l ] to List All Character Name\n"
 		<< L"Input [ n ] to Replace text with role name [default not replace role name]\n\n";
 
-	ACV1::TextEditor editor;
+	HorkEye::TextEditor editor;
 
 	while (true)
 	{

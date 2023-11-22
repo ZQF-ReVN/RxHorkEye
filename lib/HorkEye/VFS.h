@@ -1,7 +1,7 @@
 ﻿#pragma once
-#include "src/ACV_VFS_Hook.h"
-#include "src/ACV_VFS_Dump.h"
-#include "src/ACV_VFS_Extract.h"
+#include "src/VFS_Hook.h"
+#include "src/VFS_Dump.h"
+#include "src/VFS_Extract.h"
 
 
 /* 宿星のガールフレンド 芙慈子編 PKG 1.0

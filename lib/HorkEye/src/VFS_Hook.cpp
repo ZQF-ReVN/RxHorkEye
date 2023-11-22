@@ -1,21 +1,21 @@
-#include "ACV_VFS_Hook.h"
-#include "ACV_Types.h"
+#include "VFS_Hook.h"
+#include "Types.h"
 #include "../../Rut/RxMem.h"
 #include "../../RxHook/RxHook.h"
 
 #include <Windows.h>
 
 
-namespace ACV::VFS
+namespace HorkEye::VFS
 {
-	static ACV_Hash sg_ScriptHash = { 0 };
+	static CRC64 sg_ScriptHash = { 0 };
 	static char sg_aHookPath[MAX_PATH] = "./Hook/";
 	static Fn_VFSOpenFile sg_fnVFSOpenFile = nullptr;
 	static Fn_VFSScriptRead sg_fnVFSScriptRead = nullptr;
 	static Fn_ScriptCompile sg_fnScriptCompile = nullptr;
 
 
-	static FILE* __cdecl VFSOpenFile_Hook(const char* cpPath, uint32_t* pSize_Ret, ACV_Hash* pHash_Ret)
+	static FILE* __cdecl VFSOpenFile_Hook(const char* cpPath, uint32_t* pSize_Ret, CRC64* pHash_Ret)
 	{
 		char search_path[MAX_PATH];
 		::strcpy_s(search_path, MAX_PATH, sg_aHookPath);

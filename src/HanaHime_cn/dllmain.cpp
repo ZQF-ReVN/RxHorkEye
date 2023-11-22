@@ -1,6 +1,6 @@
 ﻿#include <Windows.h>
 
-#include "../../lib/ACV/VFS.h"
+#include "../../lib/HorkEye/VFS.h"
 #include "../../lib/RxHook/RxHook.h"
 
 
@@ -346,9 +346,9 @@ static void StartHook()
 	//PatchCharacterName(); // If no change the character name there would be no need to call this func
 	//ScriptFileRedirection(); //script.dat -> scrtipt.cn
 
-	ACV::VFS::SetHookFolder("./HanaHime_cn/");
-	ACV::VFS::SetHook((uint32_t)g_adExeBase + 0xBEB30, (uint32_t)g_adExeBase + 0xCE9B0, (uint32_t)g_adExeBase + 0xB66E0);
-	//ACV::VFS::SetDump((uint32_t)g_dwExeBase + 0xBEFC0, (uint32_t)g_dwExeBase + 0xCE9B0, (uint32_t)g_dwExeBase + 0xBF710, (uint32_t)g_dwExeBase + 0xB66E0);
+	HorkEye::VFS::SetHookFolder("./HanaHime_cn/");
+	HorkEye::VFS::SetHook((uint32_t)g_adExeBase + 0xBEB30, (uint32_t)g_adExeBase + 0xCE9B0, (uint32_t)g_adExeBase + 0xB66E0);
+	//HorkEye::VFS::SetDump((uint32_t)g_dwExeBase + 0xBEFC0, (uint32_t)g_dwExeBase + 0xCE9B0, (uint32_t)g_dwExeBase + 0xBF710, (uint32_t)g_dwExeBase + 0xB66E0);
 
 	Rut::RxHook::HookCreateFontIndirectA(0x86, "黑体");
 	Rut::RxHook::HookTitleExA("僴僫僸儊仏傾僽僜儕儏乕僩両1.30", "ハナヒメ＊アブソリュート！1.30");

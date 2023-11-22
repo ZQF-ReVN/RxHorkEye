@@ -3,15 +3,15 @@
 #include <cstdio>
 
 
-namespace ACV
+namespace HorkEye
 {
-	struct ACV_Hash
+	struct CRC64
 	{
 		uint32_t uiL;
 		uint32_t uiH;
 	};
 
-	struct ACV_STD_String
+	struct STD_String
 	{
 		union
 		{
@@ -24,9 +24,9 @@ namespace ACV
 	};
 
 
-	typedef FILE* (__cdecl* Fn_VFSOpenFile)(const char* cpPath, uint32_t* pSize_Ret, ACV_Hash* pHash_Ret);
+	typedef FILE* (__cdecl* Fn_VFSOpenFile)(const char* cpPath, uint32_t* pSize_Ret, CRC64* pHash_Ret);
 
-	typedef bool (__cdecl* Fn_VFSNutRead)(const char* cpPath, ACV_STD_String* pScriptStr_Ret);
+	typedef bool (__cdecl* Fn_VFSNutRead)(const char* cpPath, STD_String* pScriptStr_Ret);
 	typedef bool (__cdecl* Fn_VFSScriptRead)(uint32_t nHashL, uint32_t nHashH, uint32_t* pCompile);
 	typedef bool (__cdecl* Fn_VFSMediaRead)(const char* cpPath, void** ppBuffer, size_t* pSize_Ret, uint32_t* pBufferMaxSize);
 

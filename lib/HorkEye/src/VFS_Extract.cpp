@@ -1,5 +1,5 @@
-#include "ACV_VFS_Extract.h"
-#include "ACV_Types.h"
+#include "VFS_Extract.h"
+#include "Types.h"
 #include "../../Rut/RxFile.h"
 #include "../../Rut/RxPath.h"
 #include "../../Rut/RxConsole.h"
@@ -8,7 +8,7 @@
 #include <Windows.h>
 
 
-namespace ACV::VFS
+namespace HorkEye::VFS
 {
 	static char sg_aExtractFolder[MAX_PATH] = "./Extract/";
 	static Fn_VFSNutRead sg_fnVFSNutRead = nullptr;
@@ -35,7 +35,7 @@ namespace ACV::VFS
 
 		auto fn_extract_nut = [](std::string_view msPath) -> bool
 			{
-				ACV_STD_String std_string = { 0 };
+				STD_String std_string = { 0 };
 
 				char full_extract_path[MAX_PATH];
 				strcpy_s(full_extract_path, MAX_PATH, sg_aExtractFolder); strcat_s(full_extract_path, MAX_PATH, msPath.data());
@@ -82,7 +82,7 @@ namespace ACV::VFS
 		sg_fnVFSMediaRead = (Fn_VFSMediaRead)fnVFSLoadMedia;
 
 		Rut::RxPath::MakeDirViaPath(sg_aExtractFolder);
-		Rut::RxConsole::Alloc(L"ACV Extract", true, false);
+		Rut::RxConsole::Alloc(L"HorkEye Extract", true, false);
 		::CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)ExtractThread, NULL, NULL, NULL);
 	}
 

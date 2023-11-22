@@ -1,12 +1,12 @@
-struct ACV_Hash
+struct HorkEye_CRC64
 {
 	uint32_t uiHash_L;
 	uint32_t uiHash_H;
 };
 
-struct ACV_STD_String
+struct HorkEye_STD_String
 {
-	 union
+  union
   {
     char aStr[16];
     char* pStr;
@@ -15,27 +15,27 @@ struct ACV_STD_String
 	uint32_t uiReserve;
 }
 
-struct ACV_Map_Node
+struct HorkEye_Map_Node
 {
   uint32_t uiUn0;
-  ACV_Entry_Node Entry_Node;
+  HorkEye_Entry_Node Entry_Node;
   uint32_t uiUn1;
 };
 
-struct ACV_Entry_Node
+struct HorkEye_Entry_Node
 {
-  ACV_Entry_Node *uiNextNode;
+  HorkEye_Entry_Node *uiNextNode;
   uint32_t uiUn1;
-  ACV_Entry Entry;
+  HorkEye_Entry Entry;
 };
 
-struct ACV_Entry
+struct HorkEye_Entry
 {
-  ACV_Hash Hash;
-  ACV_Entry_Info Info;
+  HorkEye_CRC64 Hash;
+  HorkEye_Entry_Info Info;
 };
 
-struct ACV_Entry_Info
+struct HorkEye_Entry_Info
 {
   uint8_t aPackPath[256];
   uint32_t uiType; // 1 == tlg,ogg; 0 === avi; 5 == nut

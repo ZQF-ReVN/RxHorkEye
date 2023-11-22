@@ -1,6 +1,6 @@
 ﻿#include <Windows.h>
 
-#include "../../lib/ACV/VFS.h"
+#include "../../lib/HorkEye/VFS.h"
 #include "../../lib/RxHook/RxHook.h"
 
 
@@ -303,8 +303,8 @@ static void StartHook()
 	//PatchCharacterName(); // If no change the character name there would be no need to call this func
 	//ScriptFileRedirection(); //script.dat -> scrtipt.cn
 
-	ACV::VFS::SetHookFolder("./HanaHimeVFB_cn/");
-	ACV::VFS::SetHook((uint32_t)g_adExeBase + 0xBC340, (uint32_t)g_adExeBase + 0xCC1C0, (uint32_t)g_adExeBase + 0xB3B10);
+	HorkEye::VFS::SetHookFolder("./HanaHimeVFB_cn/");
+	HorkEye::VFS::SetHook((uint32_t)g_adExeBase + 0xBC340, (uint32_t)g_adExeBase + 0xCC1C0, (uint32_t)g_adExeBase + 0xB3B10);
 
 	Rut::RxHook::HookCreateFontIndirectA(0x86, "黑体");
 	Rut::RxHook::HookTitleExA("杺朄彮彈傑偠偐傞偁乕傝傫1.00", "魔法少女まじかるあーりん1.00");

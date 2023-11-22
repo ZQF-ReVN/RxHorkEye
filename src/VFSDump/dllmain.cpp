@@ -11,7 +11,10 @@ static void Start()
 	// HorkEye::VFS::SetDump((uint32_t)exe_base + 0xD8640, (uint32_t)exe_base + 0xD04D0, (uint32_t)exe_base + 0xCC020, (uint32_t)exe_base + 0xD0AF0);
 
 	// 魔法少女まじかるあーりん PKG 1.0
-	HorkEye::VFS::SetDump((uint32_t)exe_base + 0xBC7D0, (uint32_t)exe_base + 0xCC1C0, (uint32_t)exe_base + 0xBCF20, (uint32_t)exe_base + 0xB3B10);
+	// HorkEye::VFS::SetDump((uint32_t)exe_base + 0xBC7D0, (uint32_t)exe_base + 0xCC1C0, (uint32_t)exe_base + 0xBCF20, (uint32_t)exe_base + 0xB3B10);
+
+	// ノラと皇女と野良猫ハート２ 体験版1.00
+	HorkEye::VFS::SetDump((uint32_t)exe_base + 0xD3730, (uint32_t)exe_base + 0xCC2D0, (uint32_t)exe_base + 0xC7BE0, (uint32_t)exe_base + 0xCC870);
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)

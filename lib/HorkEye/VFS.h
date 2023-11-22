@@ -27,3 +27,11 @@
    fnVFSScriptRead: 0xCC1C0
    fnScriptCompile: 0xB3B10
 */
+
+/* ノラと皇女と野良猫ハート２ 体験版1.00
+   fnVFSOpenFile: 0xCA520
+   fnVFSNutRead: 0xC7BE0
+   fnVFSMediaRead: 0xD3730
+   fnVFSScriptRead: 0xCC2D0
+   fnScriptCompile: 0xCC870
+*/

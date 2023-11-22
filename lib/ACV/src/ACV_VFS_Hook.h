@@ -4,6 +4,6 @@
 
 namespace ACV::VFS
 {
-	void SetResHook(uint32_t fnVFSOpenFile, uint32_t fnVFSScriptRead, uint32_t fnCompileScript);
-	void SetResHookFolder(const char* cpFolder);
+	void SetHook(uint32_t fnOpenFile, uint32_t fnScriptRead, uint32_t fnScriptCompile);
+	void SetHookFolder(const char* cpFolder);
 }

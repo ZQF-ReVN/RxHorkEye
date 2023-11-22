@@ -1,41 +1,42 @@
-#include <iostream>
+﻿#include <iostream>
 #include <Windows.h>
 
-unsigned int EndianSwap(unsigned int x)
+
+static uint32_t EndianSwap(const uint32_t uiValue)
 {
-	return (x & 0xFF000000) >> 24 | (x & 0x00FF0000) >> 8 | (x & 0x0000FF00) << 8 | (x & 0x000000FF) << 24;
+	return (uiValue & 0xFF000000) >> 24 | (uiValue & 0x00FF0000) >> 8 | (uiValue & 0x0000FF00) << 8 | (uiValue & 0x000000FF) << 24;
 }
 
-void ScriptReame(std::wstring msFilePath)
+static void ScriptReame(std::string msPath)
 {
-	std::wcout << L"load :" << msFilePath << L'\n';
+	std::cout << "load :" << msPath << '\n';
 
-	std::wstring folder = msFilePath.substr(0, msFilePath.rfind(L"\\") + 1) + L"Rename\\";
-	std::wstring hashName = msFilePath.substr(msFilePath.rfind(L"\\") + 1);
+	std::string folder = msPath.substr(0, msPath.rfind("\\") + 1) + "Rename\\";
+	std::string hash_name = msPath.substr(msPath.rfind("\\") + 1);
 
-	unsigned int low = 0;
-	unsigned int hight = 0;
-	wchar_t newName[0xFF] = { 0 };
+	uint32_t hash_l = 0;
+	uint32_t hash_h = 0;
+	char name_buf[0xFF] = { 0 };
 
-	swscanf_s(hashName.substr(6, 8).c_str(), L"%x", &hight);
-	swscanf_s(hashName.substr(6 + 8, 8).c_str(), L"%x", &low);
+	::sscanf_s(hash_name.substr(6, 8).c_str(), "%x", &hash_h);
+	::sscanf_s(hash_name.substr(6 + 8, 8).c_str(), "%x", &hash_l);
 
-	wsprintf(newName, L"%X%X", EndianSwap(hight), EndianSwap(low));
+	sprintf_s(name_buf, 0xFF, "[%08X]-[%08X]", EndianSwap(hash_h), EndianSwap(hash_l));
  
-	CreateDirectoryW(folder.c_str(), NULL);
-	CopyFileW(hashName.c_str(), (folder + newName).c_str(), FALSE);
+	::CreateDirectoryA(folder.c_str(), NULL);
+	::CopyFileA(hash_name.c_str(), (folder + name_buf).c_str(), FALSE);
 
-	std::wcout << L"save :" << folder + newName << L'\n';
+	std::cout << "save :" << folder + name_buf << '\n';
 }
 
-int wmain(int argc, wchar_t* argv[])
+int main(int argc, char* argv[])
 {
 	for (size_t iteArg = 1; iteArg < (size_t)argc; iteArg++)
 	{
 		ScriptReame(argv[iteArg]);
 	}
 
-	std::wcout << L"count:" << argc - 1 << '\n';
+	std::cout << "count:" << argc - 1 << '\n';
 
 	system("pause");
 }

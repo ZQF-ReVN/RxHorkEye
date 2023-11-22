@@ -3,10 +3,15 @@
 #include "../../lib/ACV/VFS.h"
 
 
-VOID Start()
+static void Start()
 {
 	HMODULE exe_base = GetModuleHandleW(NULL);
-	ACV::VFS::SetDump((uint32_t)exe_base + 0xD8640, (uint32_t)exe_base + 0xD04D0, (uint32_t)exe_base + 0xCC020, (uint32_t)exe_base + 0xD0AF0);
+
+	// 宿星のガールフレンド 芙慈子編 PKG 1.0
+	// ACV::VFS::SetDump((uint32_t)exe_base + 0xD8640, (uint32_t)exe_base + 0xD04D0, (uint32_t)exe_base + 0xCC020, (uint32_t)exe_base + 0xD0AF0);
+
+	// 魔法少女まじかるあーりん PKG 1.0
+	ACV::VFS::SetDump((uint32_t)exe_base + 0xBC7D0, (uint32_t)exe_base + 0xCC1C0, (uint32_t)exe_base + 0xBCF20, (uint32_t)exe_base + 0xB3B10);
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
@@ -26,4 +31,4 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
 	return TRUE;
 }
 
-VOID __declspec(dllexport) DirA() {}
+void __declspec(dllexport) DirA() {}

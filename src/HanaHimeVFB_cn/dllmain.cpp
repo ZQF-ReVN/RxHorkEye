@@ -1,68 +1,17 @@
-#include <Windows.h>
+ï»¿#include <Windows.h>
 
-#include "../TDA/MemX.h"
-#include "../TDA/DetoursX.h"
-#include "../ACV1Extract/ACV1Extract.h"
-
-
-static DWORD g_dwExeBase = (DWORD)GetModuleHandleW(NULL);
+#include "../../lib/ACV/VFS.h"
+#include "../../lib/RxHook/RxHook.h"
 
 
-VOID PatchMenu();
-VOID PatchUIText();
-VOID PatchBracket();
-VOID PatchCharset();
-VOID PatchGBK2Unicode();
-VOID PatchGBKRangeTable();
+static size_t g_adExeBase = (size_t)GetModuleHandleW(NULL);
 
 
-VOID StartHook()
-{
-	//TDA::ConsoleX::SetConsole(L"HanaHime");
-
-	PatchMenu();
-	PatchUIText();
-	PatchBracket();
-	PatchCharset();
-	PatchGBK2Unicode();
-	PatchGBKRangeTable();
-	//PatchCharacterName(); // If no change the character name there would be no need to call this func
-	//ScriptFileRedirection(); //script.dat -> scrtipt.cn
-
-	SetFileHook("FileHook/", 0xBCF20);
-	//SetFileExtract("Extract/");
-	//SetFileDump("Dump/");
-	SetScriptHook(0xCC1C0, 0xB3B10, "FileHook/Script/");
-	//SetScriptDump(0xCC1C0, 0xB3B10, "Dump\\Script\\");
-
-	TDA::DetoursX::HookCreateFontIndirectA(0x86, "ºÚÌå");
-	TDA::DetoursX::HookTitleExA("–‚–@­—‚Ü‚¶‚©‚é‚ [‚è‚ñ1.00", "Ä§·¨ÉÙÅ®¤Ş¤¸¤«¤ë¤¢©`¤ê¤ó1.00");
-}
-
-BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
-{
-	switch (ul_reason_for_call)
-	{
-	case DLL_PROCESS_ATTACH:
-		StartHook();
-		break;
-	case DLL_THREAD_ATTACH:
-		break;
-	case DLL_THREAD_DETACH:
-		break;
-	case DLL_PROCESS_DETACH:
-		break;
-	}
-	return TRUE;
-}
-
-VOID __declspec(dllexport) DirA() {}
-
-
-static SHORT g_pChar[2] = { 0 };
-static WCHAR g_pWChar[2] = { 0 };
-static DWORD g_GBK2UnicodeRaw, g_GBK2UnicodeRet;
-VOID __declspec(naked) GBK2Unicode()
+static uint16_t sg_aDBCSChar[2] = { 0 };
+static wchar_t sg_aUnicodeChar[2] = { 0 };
+static uint32_t sg_adFnGBK2UnicodeEntry = 0;
+static uint32_t sg_adFnGBK2UnicodeReturn = 0;
+static void __declspec(naked) GBK2Unicode()
 {
 	__asm
 	{
@@ -72,29 +21,29 @@ VOID __declspec(naked) GBK2Unicode()
 		shr bx, 8;
 		shl ax, 8;
 		or ax, bx;
-		mov g_pChar, ax;
+		mov sg_aDBCSChar, ax;
 	}
 
-	MultiByteToWideChar(0x3A8, NULL, (CHAR*)g_pChar, 2, g_pWChar, 2);
+	::MultiByteToWideChar(0x3A8, NULL, (CHAR*)sg_aDBCSChar, 2, sg_aUnicodeChar, 2);
 
 	__asm
 	{
 		popfd
 		popad;
-		mov ax, g_pWChar;
-		jmp g_GBK2UnicodeRet;
+		mov ax, sg_aUnicodeChar;
+		jmp sg_adFnGBK2UnicodeReturn;
 	}
 }
 
 /*
-¡¸    SJIS 0x8175  GBK 0xA1B8
-¡º    SJIS 0x8177  GBK 0xA1BA
-£¨   SJIS 0x8169  GBK 0xA3A8
+??    SJIS 0x8175  GBK 0xA1B8
+??    SJIS 0x8177  GBK 0xA1BA
+??   SJIS 0x8169  GBK 0xA3A8
 */
-static DWORD g_dwBracketRaw = 0;
-static DWORD g_dwBracketIS = 0;
-static DWORD g_dwBracketNO = 0;
-VOID __declspec(naked) FixBracket()
+static void* sg_adBracketIS = 0;
+static void* sg_adBracketNO = 0;
+static void* sg_adBracketEntry = 0;
+static void __declspec(naked) FixBracket()
 {
 	__asm
 	{
@@ -110,131 +59,131 @@ VOID __declspec(naked) FixBracket()
 		je IS;
 
 	NO:
-		jmp g_dwBracketNO;
+		jmp sg_adBracketNO;
 	IS:
-		jmp g_dwBracketIS;
+		jmp sg_adBracketIS;
 	}
 }
 
-VOID PatchMenu()
+static void PatchMenu()
 {
-	// ¡Á -> ¡Á
-	static UCHAR aX[] = { 0xA1, 0xC1, 0x00 };
-	TDA::MemX::WriteMemory((LPVOID)(g_dwExeBase + 0x1B8F54), aX, sizeof(aX));
+	// Ã— -> Ã—
+	uint8_t aX[] = { 0xA1, 0xC1, 0x00 };
+	Rut::RxHook::SysMemWrite((void*)(g_adExeBase + 0x1B8F54), aX, sizeof(aX));
 
-	// £« -> £«
-	static UCHAR aPlus[] = { 0xA3, 0xAB, 0x00 };
-	TDA::MemX::WriteMemory((LPVOID)(g_dwExeBase + 0x1B8F50), aPlus, sizeof(aPlus));
+	// ï¼‹ -> ï¼‹
+	uint8_t aPlus[] = { 0xA3, 0xAB, 0x00 };
+	Rut::RxHook::SysMemWrite((void*)(g_adExeBase + 0x1B8F50), aPlus, sizeof(aPlus));
 
-	//»­Ãæ -> »­Ãæ
-	static UCHAR aPaint[] = { 0xBB, 0xAD, 0xC3, 0xE6 ,0x00 };
-	TDA::MemX::WriteMemory((LPVOID)(g_dwExeBase + 0x1B90E8), aPaint, sizeof(aPaint));
+	//ç”»é¢ -> ç”»é¢
+	uint8_t aPaint[] = { 0xBB, 0xAD, 0xC3, 0xE6 ,0x00 };
+	Rut::RxHook::SysMemWrite((void*)(g_adExeBase + 0x1B90E8), aPaint, sizeof(aPaint));
 
-	//¥¹¥¯¥ê©`¥ó¥â©`¥É  ->  ÏÔÊ¾Ä£Ê½
-	static UCHAR aScreenMode[] = { 0xCF, 0xD4, 0xCA, 0xBE, 0xC4, 0xA3, 0xCA, 0xBD, 0x00 };
-	TDA::MemX::WriteMemory((LPVOID)(g_dwExeBase + 0x1B902C), aScreenMode, sizeof(aScreenMode));
-	TDA::MemX::WriteMemory((LPVOID)(g_dwExeBase + 0x1B90D4), aScreenMode, sizeof(aScreenMode));
+	//ã‚¹ã‚¯ãƒªãƒ¼ãƒ³ãƒ¢ãƒ¼ãƒ‰  ->  æ˜¾ç¤ºæ¨¡å¼
+	uint8_t aScreenMode[] = { 0xCF, 0xD4, 0xCA, 0xBE, 0xC4, 0xA3, 0xCA, 0xBD, 0x00 };
+	Rut::RxHook::SysMemWrite((void*)(g_adExeBase + 0x1B902C), aScreenMode, sizeof(aScreenMode));
+	Rut::RxHook::SysMemWrite((void*)(g_adExeBase + 0x1B90D4), aScreenMode, sizeof(aScreenMode));
 
-	//¥¦¥£¥ó¥É¥¦  ->  ´°¿Ú
-	static UCHAR aWindow[] = { 0xB4, 0xB0, 0xBF, 0xDA, 0x00 };
-	TDA::MemX::WriteMemory((LPVOID)(g_dwExeBase + 0x1B90C8), aWindow, sizeof(aWindow));
+	//ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦  ->  çª—å£
+	uint8_t aWindow[] = { 0xB4, 0xB0, 0xBF, 0xDA, 0x00 };
+	Rut::RxHook::SysMemWrite((void*)(g_adExeBase + 0x1B90C8), aWindow, sizeof(aWindow));
 
-	//¥Õ¥ë¥¹¥¯¥ê©`¥ó  ->  È«ÆÁ
-	static UCHAR aFullScreen[] = { 0xC8, 0xAB, 0xC6, 0xC1, 0x00 };
-	TDA::MemX::WriteMemory((LPVOID)(g_dwExeBase + 0x1B90B8), aFullScreen, sizeof(aFullScreen));
+	//ãƒ•ãƒ«ã‚¹ã‚¯ãƒªãƒ¼ãƒ³  ->  å…¨å±
+	uint8_t aFullScreen[] = { 0xC8, 0xAB, 0xC6, 0xC1, 0x00 };
+	Rut::RxHook::SysMemWrite((void*)(g_adExeBase + 0x1B90B8), aFullScreen, sizeof(aFullScreen));
 
-	//¥¢¥¹¥Ú¥¯¥È±È 16:9  -> 16:9
-	static UCHAR a16x9[] = { 0x31, 0x36, 0x3A, 0x39, 0x00 };
-	TDA::MemX::WriteMemory((LPVOID)(g_dwExeBase + 0x1B90A4), a16x9, sizeof(a16x9));
+	//ã‚¢ã‚¹ãƒšã‚¯ãƒˆæ¯” 16:9  -> 16:9
+	uint8_t a16x9[] = { 0x31, 0x36, 0x3A, 0x39, 0x00 };
+	Rut::RxHook::SysMemWrite((void*)(g_adExeBase + 0x1B90A4), a16x9, sizeof(a16x9));
 
-	//¥¢¥¹¥Ú¥¯¥È±È  4:3  ->  4:3
-	static UCHAR a4x3[] = { 0x34, 0x3A, 0x33, 0x00 };
-	TDA::MemX::WriteMemory((LPVOID)(g_dwExeBase + 0x1B9090), a4x3, sizeof(a4x3));
+	//ã‚¢ã‚¹ãƒšã‚¯ãƒˆæ¯”  4:3  ->  4:3
+	uint8_t a4x3[] = { 0x34, 0x3A, 0x33, 0x00 };
+	Rut::RxHook::SysMemWrite((void*)(g_adExeBase + 0x1B9090), a4x3, sizeof(a4x3));
 
-	//¥¦¥£¥ó¥É¥¦Î»ÖÃ  ->  ´°¿ÚÎ»ÖÃ
-	static UCHAR aWindowPosition[] = { 0xB4, 0xB0, 0xBF, 0xDA, 0xCE, 0xBB, 0xD6, 0xC3, 0x00 };
-	TDA::MemX::WriteMemory((LPVOID)(g_dwExeBase + 0x1B906C), aWindowPosition, sizeof(aWindowPosition));
+	//ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ä½ç½®  ->  çª—å£ä½ç½®
+	uint8_t aWindowPosition[] = { 0xB4, 0xB0, 0xBF, 0xDA, 0xCE, 0xBB, 0xD6, 0xC3, 0x00 };
+	Rut::RxHook::SysMemWrite((void*)(g_adExeBase + 0x1B906C), aWindowPosition, sizeof(aWindowPosition));
 
-	//³£¤Ë×îÇ°Ãæ¤Ç±íÊ¾  ->  ÖÃ¶¥´°¿Ú
-	static UCHAR aWindowTop[] = { 0xD6, 0xC3, 0xB6, 0xA5, 0xB4, 0xB0, 0xBF, 0xDA, 0x00 };
-	TDA::MemX::WriteMemory((LPVOID)(g_dwExeBase + 0x1B9040), aWindowTop, sizeof(aWindowTop));
+	//å¸¸ã«æœ€å‰é¢ã§è¡¨ç¤º  ->  ç½®é¡¶çª—å£
+	uint8_t aWindowTop[] = { 0xD6, 0xC3, 0xB6, 0xA5, 0xB4, 0xB0, 0xBF, 0xDA, 0x00 };
+	Rut::RxHook::SysMemWrite((void*)(g_adExeBase + 0x1B9040), aWindowTop, sizeof(aWindowTop));
 
-	//×ù˜Ë¤ò±£³Ö  ->  ±£³ÖÎ»ÖÃ
-	static UCHAR aWindowMaintain[] = { 0xB1, 0xA3, 0xB3, 0xD6, 0xCE, 0xBB, 0xD6, 0xC3, 0x00 };
-	TDA::MemX::WriteMemory((LPVOID)(g_dwExeBase + 0x1B9054), aWindowMaintain, sizeof(aWindowMaintain));
+	//åº§æ¨™ã‚’ä¿æŒ  ->  ä¿æŒä½ç½®
+	uint8_t aWindowMaintain[] = { 0xB1, 0xA3, 0xB3, 0xD6, 0xCE, 0xBB, 0xD6, 0xC3, 0x00 };
+	Rut::RxHook::SysMemWrite((void*)(g_adExeBase + 0x1B9054), aWindowMaintain, sizeof(aWindowMaintain));
 
-	//»­Ãæ¤ÎÖĞÑë  ->  ÆÁÄ»¾ÓÖĞ
-	static UCHAR aWindowCenter[] = { 0xC6, 0xC1, 0xC4, 0xBB, 0xBE, 0xD3, 0xD6, 0xD0, 0x00 };
-	TDA::MemX::WriteMemory((LPVOID)(g_dwExeBase + 0x1B9060), aWindowCenter, sizeof(aWindowCenter));
+	//ç”»é¢ã®ä¸­å¤®  ->  å±å¹•å±…ä¸­
+	uint8_t aWindowCenter[] = { 0xC6, 0xC1, 0xC4, 0xBB, 0xBE, 0xD3, 0xD6, 0xD0, 0x00 };
+	Rut::RxHook::SysMemWrite((void*)(g_adExeBase + 0x1B9060), aWindowCenter, sizeof(aWindowCenter));
 
-	//¥¦¥£¥ó¥É¥¦¥µ¥¤¥º  ->  ´°¿Ú´óĞ¡
-	static UCHAR aWindowSize[] = { 0xB4, 0xB0, 0xBF, 0xDA, 0xB4, 0xF3, 0xD0, 0xA1, 0x00 };
-	TDA::MemX::WriteMemory((LPVOID)(g_dwExeBase + 0x1B907C), aWindowSize, sizeof(aWindowSize));
+	//ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚µã‚¤ã‚º  ->  çª—å£å¤§å°
+	uint8_t aWindowSize[] = { 0xB4, 0xB0, 0xBF, 0xDA, 0xB4, 0xF3, 0xD0, 0xA1, 0x00 };
+	Rut::RxHook::SysMemWrite((void*)(g_adExeBase + 0x1B907C), aWindowSize, sizeof(aWindowSize));
 
-	//¥Õ¥ë¥¹¥¯¥ê©`¥ó¥â©`¥É  ->  È«ÆÁÄ£Ê½
-	static UCHAR aFullScreenMode[] = { 0xC8, 0xAB, 0xC6, 0xC1, 0xC4, 0xA3, 0xCA, 0xBD, 0x00 };
-	TDA::MemX::WriteMemory((LPVOID)(g_dwExeBase + 0x1B9028), aFullScreenMode, sizeof(aFullScreenMode));
+	//ãƒ•ãƒ«ã‚¹ã‚¯ãƒªãƒ¼ãƒ³ãƒ¢ãƒ¼ãƒ‰  ->  å…¨å±æ¨¡å¼
+	uint8_t aFullScreenMode[] = { 0xC8, 0xAB, 0xC6, 0xC1, 0xC4, 0xA3, 0xCA, 0xBD, 0x00 };
+	Rut::RxHook::SysMemWrite((void*)(g_adExeBase + 0x1B9028), aFullScreenMode, sizeof(aFullScreenMode));
 
-	//»­Ãæ’ˆ´ó¿sĞ¡Ñaég  ->  Ëõ·ÅËã·¨
-	static UCHAR aScaling[] = { 0xCB, 0xF5, 0xB7, 0xC5, 0xCB, 0xE3, 0xB7, 0xA8, 0x00 };
-	TDA::MemX::WriteMemory((LPVOID)(g_dwExeBase + 0x1B8FE8), aScaling, sizeof(aScaling));
+	//ç”»é¢æ‹¡å¤§ç¸®å°è£œé–“  ->  ç¼©æ”¾ç®—æ³•
+	uint8_t aScaling[] = { 0xCB, 0xF5, 0xB7, 0xC5, 0xCB, 0xE3, 0xB7, 0xA8, 0x00 };
+	Rut::RxHook::SysMemWrite((void*)(g_adExeBase + 0x1B8FE8), aScaling, sizeof(aScaling));
 
-	//´¹Ö±Í¬ÆÚ´ı¤Á  ->  ´¹Ö±Í¬²½
-	static UCHAR aSync[] = { 0xB4, 0xB9, 0xD6, 0xB1, 0xCD, 0xAC, 0xB2, 0xBD, 0x00 };
-	TDA::MemX::WriteMemory((LPVOID)(g_dwExeBase + 0x1B8F7C), aSync, sizeof(aSync));
+	//å‚ç›´åŒæœŸå¾…ã¡  ->  å‚ç›´åŒæ­¥
+	uint8_t aSync[] = { 0xB4, 0xB9, 0xD6, 0xB1, 0xCD, 0xAC, 0xB2, 0xBD, 0x00 };
+	Rut::RxHook::SysMemWrite((void*)(g_adExeBase + 0x1B8F7C), aSync, sizeof(aSync));
 
-	//Í¬ÆÚŸo„¿  ->  ¹Ø±ÕÍ¬²½
-	static UCHAR aOffSync[] = { 0xB9, 0xD8, 0xB1, 0xD5, 0xCD, 0xAC, 0xB2, 0xBD, 0x00 };
-	TDA::MemX::WriteMemory((LPVOID)(g_dwExeBase + 0x1B8F70), aOffSync, sizeof(aOffSync));
+	//åŒæœŸç„¡åŠ¹  ->  å…³é—­åŒæ­¥
+	uint8_t aOffSync[] = { 0xB9, 0xD8, 0xB1, 0xD5, 0xCD, 0xAC, 0xB2, 0xBD, 0x00 };
+	Rut::RxHook::SysMemWrite((void*)(g_adExeBase + 0x1B8F70), aOffSync, sizeof(aOffSync));
 
-	//¥µ¥¤¥º¹Ì¶¨  ->  ¹Ì¶¨´óĞ¡
-	static UCHAR aFixSize[] = { 0xB9, 0xCC, 0xB6, 0xA8, 0xB4, 0xF3, 0xD0, 0xA1, 0x28, 0x00 };
-	TDA::MemX::WriteMemory((LPVOID)(g_dwExeBase + 0x1B8F44), aFixSize, sizeof(aFixSize));
+	//ã‚µã‚¤ã‚ºå›ºå®š  ->  å›ºå®šå¤§å°
+	uint8_t aFixSize[] = { 0xB9, 0xCC, 0xB6, 0xA8, 0xB4, 0xF3, 0xD0, 0xA1, 0x28, 0x00 };
+	Rut::RxHook::SysMemWrite((void*)(g_adExeBase + 0x1B8F44), aFixSize, sizeof(aFixSize));
 
-	//µÈ±¶  ->  Ô­Ê¼
-	static UCHAR aEqual[] = { 0xD4, 0xAD, 0xCA, 0xBC };
-	TDA::MemX::WriteMemory((LPVOID)(g_dwExeBase + 0x1B9155), aEqual, sizeof(aEqual));
+	//ç­‰å€  ->  åŸå§‹
+	uint8_t aEqual[] = { 0xD4, 0xAD, 0xCA, 0xBC };
+	Rut::RxHook::SysMemWrite((void*)(g_adExeBase + 0x1B9155), aEqual, sizeof(aEqual));
 }
 
-VOID PatchUIText()
+static void PatchUIText()
 {
-	//Æğ„ÓÔO¶¨  ->  Æô¶¯ÉèÖÃ
-	static UCHAR aBootSetup[] = { 0xC6, 0xF4, 0xB6, 0xAF, 0xC9, 0xE8, 0xD6, 0xC3, 0x00 };
-	TDA::MemX::WriteMemory((LPVOID)(g_dwExeBase + 0x1B9420), aBootSetup, sizeof(aBootSetup));
+	//èµ·å‹•è¨­å®š  ->  å¯åŠ¨è®¾ç½®
+	uint8_t aBootSetup[] = { 0xC6, 0xF4, 0xB6, 0xAF, 0xC9, 0xE8, 0xD6, 0xC3, 0x00 };
+	Rut::RxHook::SysMemWrite((void*)(g_adExeBase + 0x1B9420), aBootSetup, sizeof(aBootSetup));
 
-	//¥¹¥¯¥ê©`¥ó¥â©`¥É  ->  ÏÔÊ¾Ä£Ê½
-	static UCHAR aDisplayMode[] = { 0xCF, 0xD4, 0xCA, 0xBE, 0xC4, 0xA3, 0xCA, 0xBD,0x00 };
-	TDA::MemX::WriteMemory((LPVOID)(g_dwExeBase + 0x1B902C), aDisplayMode, sizeof(aDisplayMode));
-	TDA::MemX::WriteMemory((LPVOID)(g_dwExeBase + 0x1B90D4), aDisplayMode, sizeof(aDisplayMode));
+	//ã‚¹ã‚¯ãƒªãƒ¼ãƒ³ãƒ¢ãƒ¼ãƒ‰  ->  æ˜¾ç¤ºæ¨¡å¼
+	uint8_t aDisplayMode[] = { 0xCF, 0xD4, 0xCA, 0xBE, 0xC4, 0xA3, 0xCA, 0xBD,0x00 };
+	Rut::RxHook::SysMemWrite((void*)(g_adExeBase + 0x1B902C), aDisplayMode, sizeof(aDisplayMode));
+	Rut::RxHook::SysMemWrite((void*)(g_adExeBase + 0x1B90D4), aDisplayMode, sizeof(aDisplayMode));
 
-	//¥¦¥£¥ó¥É¥¦  ->  ´°¿Ú
-	static UCHAR aWindow[] = { 0xB4, 0xB0, 0xBF, 0xDA, 0x00 };
-	TDA::MemX::WriteMemory((LPVOID)(g_dwExeBase + 0x1B90C8), aWindow, sizeof(aWindow));
+	//ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦  ->  çª—å£
+	uint8_t aWindow[] = { 0xB4, 0xB0, 0xBF, 0xDA, 0x00 };
+	Rut::RxHook::SysMemWrite((void*)(g_adExeBase + 0x1B90C8), aWindow, sizeof(aWindow));
 
-	//¥Õ¥ë¥¹¥¯¥ê©`¥ó  ->  È«ÆÁ
-	static UCHAR aFullScreen[] = { 0xC8, 0xAB, 0xC6, 0xC1,0x00 };
-	TDA::MemX::WriteMemory((LPVOID)(g_dwExeBase + 0x1B90B8), aFullScreen, sizeof(aFullScreen));
+	//ãƒ•ãƒ«ã‚¹ã‚¯ãƒªãƒ¼ãƒ³  ->  å…¨å±
+	uint8_t aFullScreen[] = { 0xC8, 0xAB, 0xC6, 0xC1,0x00 };
+	Rut::RxHook::SysMemWrite((void*)(g_adExeBase + 0x1B90B8), aFullScreen, sizeof(aFullScreen));
 
-	//£±£¶£º£¹±ÈÂÊ  ->  16:9
-	static UCHAR a16x9[] = { 0x31, 0x36, 0xA3, 0xBA, 0x39, 0x00 };
-	TDA::MemX::WriteMemory((LPVOID)(g_dwExeBase + 0x1B93DC), a16x9, sizeof(a16x9));
+	//ï¼‘ï¼–ï¼šï¼™æ¯”ç‡  ->  16:9
+	uint8_t a16x9[] = { 0x31, 0x36, 0xA3, 0xBA, 0x39, 0x00 };
+	Rut::RxHook::SysMemWrite((void*)(g_adExeBase + 0x1B93DC), a16x9, sizeof(a16x9));
 
-	//£´£º£³±ÈÂÊ  ->  4:3
-	static UCHAR a4x3[] = { 0x34, 0xA3, 0xBA, 0x33, 0x00 };
-	TDA::MemX::WriteMemory((LPVOID)(g_dwExeBase + 0x1B93D0), a4x3, sizeof(a4x3));
+	//ï¼”ï¼šï¼“æ¯”ç‡  ->  4:3
+	uint8_t a4x3[] = { 0x34, 0xA3, 0xBA, 0x33, 0x00 };
+	Rut::RxHook::SysMemWrite((void*)(g_adExeBase + 0x1B93D0), a4x3, sizeof(a4x3));
 
-	//¥¹¥¯¥ê©`¥ó½âÏñ¶È  ->  ·Ö±æÂÊ
-	static UCHAR aResolution[] = { 0xB7, 0xD6, 0xB1, 0xE6, 0xC2, 0xCA, 0x00 };
-	TDA::MemX::WriteMemory((LPVOID)(g_dwExeBase + 0x1B93BC), aResolution, sizeof(aResolution));
+	//ã‚¹ã‚¯ãƒªãƒ¼ãƒ³è§£åƒåº¦  ->  åˆ†è¾¨ç‡
+	uint8_t aResolution[] = { 0xB7, 0xD6, 0xB1, 0xE6, 0xC2, 0xCA, 0x00 };
+	Rut::RxHook::SysMemWrite((void*)(g_adExeBase + 0x1B93BC), aResolution, sizeof(aResolution));
 
-	//¥¦¥£¥ó¥É¥¦¥µ¥¤¥º¤ò¥¹¥¯¥ê©`¥ó½âÏñ¶È¤ËºÏ¤ï¤»¤ë  ->  ÊÊÅäÆÁÄ»·Ö±æÂÊ
-	static UCHAR aAdjustSize[] = { 0xCA, 0xCA, 0xC5, 0xE4, 0xC6, 0xC1, 0xC4, 0xBB, 0xB7, 0xD6, 0xB1, 0xE6, 0xC2, 0xCA, 0x00 };
-	TDA::MemX::WriteMemory((LPVOID)(g_dwExeBase + 0x1B9384), aAdjustSize, sizeof(aAdjustSize));
+	//ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚µã‚¤ã‚ºã‚’ã‚¹ã‚¯ãƒªãƒ¼ãƒ³è§£åƒåº¦ã«åˆã‚ã›ã‚‹  ->  é€‚é…å±å¹•åˆ†è¾¨ç‡
+	uint8_t aAdjustSize[] = { 0xCA, 0xCA, 0xC5, 0xE4, 0xC6, 0xC1, 0xC4, 0xBB, 0xB7, 0xD6, 0xB1, 0xE6, 0xC2, 0xCA, 0x00 };
+	Rut::RxHook::SysMemWrite((void*)(g_adExeBase + 0x1B9384), aAdjustSize, sizeof(aAdjustSize));
 
-	//×¢ÒâÊÂÏî
-	//¸ß½âÏñ¶È¤Ç¤Ï£Ğ£Ã¤ËÍ¨³£¤è¤ê¸ß¤¤¥¹¥Ú¥Ã¥¯¤¬Çó¤á¤é¤ì¤Ş¤¹¤Î¤Ç¡¢Óè¤á¤´×¢ÒâÏÂ¤µ¤¤¡£
-	//DBD(Dot By Dot)¤Ï¥Ç¥£¥¹¥×¥ì¥¤¤Î£±¥É¥Ã¥È¤Ë»­Ïñ¤Î£±¥Ô¥¯¥»¥ë¤ò±íÊ¾¤¹¤ëÊÂ¤Ç¤¹¡£
-	static UCHAR aNote[] =
+	//æ³¨æ„äº‹é¡¹
+	//é«˜è§£åƒåº¦ã§ã¯ï¼°ï¼£ã«é€šå¸¸ã‚ˆã‚Šé«˜ã„ã‚¹ãƒšãƒƒã‚¯ãŒæ±‚ã‚ã‚‰ã‚Œã¾ã™ã®ã§ã€äºˆã‚ã”æ³¨æ„ä¸‹ã•ã„ã€‚
+	//DBD(Dot By Dot)ã¯ãƒ‡ã‚£ã‚¹ãƒ—ãƒ¬ã‚¤ã®ï¼‘ãƒ‰ãƒƒãƒˆã«ç”»åƒã®ï¼‘ãƒ”ã‚¯ã‚»ãƒ«ã‚’è¡¨ç¤ºã™ã‚‹äº‹ã§ã™ã€‚
+	uint8_t aNote[] =
 	{
 		0xB8, 0xDF, 0xB7, 0xD6, 0xB1, 0xE6, 0xC2, 0xCA,
 		0xD0, 0xE8, 0xD2, 0xAA, 0xB8, 0xFC, 0xB8, 0xDF, 0xB5, 0xC4, 0xD3, 0xB2, 0xBC, 0xFE, 0xD0, 0xD4,
@@ -244,13 +193,13 @@ VOID PatchUIText()
 		0x20, 0x42, 0x79, 0x20, 0x44, 0x6F, 0x74, 0x29, 0x20, 0xBC, 0xB4, 0xB5, 0xE3, 0xB6, 0xD4, 0xB5,
 		0xE3, 0xCF, 0xD4, 0xCA, 0xBE, 0x00
 	};
-	TDA::MemX::WriteMemory((LPVOID)(g_dwExeBase + 0x1B92E8), aNote, sizeof(aNote));
+	Rut::RxHook::SysMemWrite((void*)(g_adExeBase + 0x1B92E8), aNote, sizeof(aNote));
 
-	//´æµµÎ»ÖÃ1
-	//¥É¥­¥å¥á¥ó¥È¤Ë¥»©`¥Ö¥Ç©`¥¿¤ò±£´æ¤·¤Æ¤âÒË¤·¤¤¤Ç¤¹¤«£¿
-	//¥É¥­¥å¥á¥ó¥È¤òßx¤Ö¤ÈÍ¬¤¸¥Ö¥é¥ó¥É¤Î¥²©`¥à¤Î¥»©`¥Ö¥Ç©`¥¿¤¬
-	//¥É¥­¥å¥á¥ó¥È¤Ë¤¢¤ì¤ĞÔO¶¨¤òÒ»²¿Òı¤­¾@¤²¤ë¤è¤¦¤Ë¤Ê¤ê¤Ş¤¹¡£
-	static UCHAR aSvaePath[] =
+	//å­˜æ¡£ä½ç½®1
+	//ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã«ã‚»ãƒ¼ãƒ–ãƒ‡ãƒ¼ã‚¿ã‚’ä¿å­˜ã—ã¦ã‚‚å®œã—ã„ã§ã™ã‹ï¼Ÿ
+	//ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã‚’é¸ã¶ã¨åŒã˜ãƒ–ãƒ©ãƒ³ãƒ‰ã®ã‚²ãƒ¼ãƒ ã®ã‚»ãƒ¼ãƒ–ãƒ‡ãƒ¼ã‚¿ãŒ
+	//ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã«ã‚ã‚Œã°è¨­å®šã‚’ä¸€éƒ¨å¼•ãç¶™ã’ã‚‹ã‚ˆã†ã«ãªã‚Šã¾ã™ã€‚
+	uint8_t aSvaePath[] =
 	{
 		0xCA, 0xC7, 0xB7, 0xF1, 0xC9, 0xE8, 0xD6, 0xC3, 0xCE, 0xC4, 0xB5, 0xB5, 0xCE, 0xAA, 0xB4, 0xE6,
 		0xB5, 0xB5, 0xC4, 0xAC, 0xC8, 0xCF, 0xCE, 0xBB, 0xD6, 0xC3, 0xA3, 0xBF,
@@ -258,60 +207,60 @@ VOID PatchUIText()
 		0xD1, 0xA1, 0xB7, 0xF1, 0xBF, 0xC9, 0xD2, 0xD4, 0xC9, 0xE8, 0xD6, 0xC3, 0xB4, 0xE6, 0xB5, 0xB5,
 		0xCE, 0xBB, 0xD6, 0xC3, 0xCE, 0xAA, 0xC4, 0xBF, 0xC2, 0xBC, 0xCF, 0xC2, 0x00
 	};
-	TDA::MemX::WriteMemory((LPVOID)(g_dwExeBase + 0x1B8E90), aSvaePath, sizeof(aSvaePath));
+	Rut::RxHook::SysMemWrite((void*)(g_adExeBase + 0x1B8E90), aSvaePath, sizeof(aSvaePath));
 
-	//´æµµÎ»ÖÃ2
-	//¥²©`¥à¥Õ¥©¥ë¥À¤Ë¥»©`¥Ö¥Ç©`¥¿¤ò×÷¤ê¤Ş¤¹¤«£¿
-	static UCHAR aSvaePath2[] =
+	//å­˜æ¡£ä½ç½®2
+	//ã‚²ãƒ¼ãƒ ãƒ•ã‚©ãƒ«ãƒ€ã«ã‚»ãƒ¼ãƒ–ãƒ‡ãƒ¼ã‚¿ã‚’ä½œã‚Šã¾ã™ã‹ï¼Ÿ
+	uint8_t aSvaePath2[] =
 	{
 		0xCA, 0xC7, 0xB7, 0xF1, 0xC9, 0xE8, 0xD6, 0xC3, 0xB4, 0xE6, 0xB5, 0xB5, 0xC2, 0xB7, 0xBE, 0xB6,
 		0xCE, 0xAA, 0xD3, 0xCE, 0xCF, 0xB7, 0xC4, 0xBF, 0xC2, 0xBC, 0xCF, 0xC2, 0xA3, 0xBF, 0x00,
 	};
-	TDA::MemX::WriteMemory((LPVOID)(g_dwExeBase + 0x1B8E38), aSvaePath2, sizeof(aSvaePath2));
+	Rut::RxHook::SysMemWrite((void*)(g_adExeBase + 0x1B8E38), aSvaePath2, sizeof(aSvaePath2));
 
-	//´æµµÎ»ÖÃ3
-	//¥É¥­¥å¥á¥ó¥È¤Ë¥»©`¥Ö¥Ç©`¥¿¤ò×÷¤ê¤Ş¤¹¤«£¿
-	static UCHAR aSvaePath3[] = { 0xB4, 0xE6, 0xB5, 0xB5, 0xC2, 0xB7, 0xBE, 0xB6, 0xCE, 0xAA, 0x0A, 0x00 };
-	TDA::MemX::WriteMemory((LPVOID)(g_dwExeBase + 0x1B8E64), aSvaePath3, sizeof(aSvaePath3));
+	//å­˜æ¡£ä½ç½®3
+	//ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã«ã‚»ãƒ¼ãƒ–ãƒ‡ãƒ¼ã‚¿ã‚’ä½œã‚Šã¾ã™ã‹ï¼Ÿ
+	uint8_t aSvaePath3[] = { 0xB4, 0xE6, 0xB5, 0xB5, 0xC2, 0xB7, 0xBE, 0xB6, 0xCE, 0xAA, 0x0A, 0x00 };
+	Rut::RxHook::SysMemWrite((void*)(g_adExeBase + 0x1B8E64), aSvaePath3, sizeof(aSvaePath3));
 
-	//´Î»ØÆğ„Ó•r¤ËÆğ„ÓÔO¶¨»­Ãæ¤ò±íÊ¾¤¹¤ë -> ÏÂ´ÎÆô¶¯ÏÔÊ¾ÉèÖÃ½çÃæ
-	static UCHAR aNext[] =
+	//æ¬¡å›èµ·å‹•æ™‚ã«èµ·å‹•è¨­å®šç”»é¢ã‚’è¡¨ç¤ºã™ã‚‹ -> ä¸‹æ¬¡å¯åŠ¨æ˜¾ç¤ºè®¾ç½®ç•Œé¢
+	uint8_t aNext[] =
 	{
 		0xCF, 0xC2, 0xB4, 0xCE, 0xC6, 0xF4, 0xB6, 0xAF, 0xCF, 0xD4, 0xCA, 0xBE, 0xC9, 0xE8, 0xD6, 0xC3,
 		0xBD, 0xE7, 0xC3, 0xE6, 0x00
 	};
-	TDA::MemX::WriteMemory((LPVOID)(g_dwExeBase + 0x1B92A8), aNext, sizeof(aNext));
+	Rut::RxHook::SysMemWrite((void*)(g_adExeBase + 0x1B92A8), aNext, sizeof(aNext));
 
-	//Ô”¼šÔO¶¨  ->  ÏêÏ¸ÉèÖÃ
-	static UCHAR aDetail[] = { 0xCF, 0xEA, 0xCF, 0xB8, 0xC9, 0xE8, 0xD6, 0xC3, 0x00 };
-	TDA::MemX::WriteMemory((LPVOID)(g_dwExeBase + 0x1B92DC), aDetail, sizeof(aDetail));
+	//è©³ç´°è¨­å®š  ->  è¯¦ç»†è®¾ç½®
+	uint8_t aDetail[] = { 0xCF, 0xEA, 0xCF, 0xB8, 0xC9, 0xE8, 0xD6, 0xC3, 0x00 };
+	Rut::RxHook::SysMemWrite((void*)(g_adExeBase + 0x1B92DC), aDetail, sizeof(aDetail));
 
-	//Æğ„Ó  ->  Æô¶¯
-	static UCHAR aBoot[] = { 0xC6, 0xF4, 0xB6, 0xAF, 0x00 };
-	TDA::MemX::WriteMemory((LPVOID)(g_dwExeBase + 0x1B92D4), aBoot, sizeof(aBoot));
+	//èµ·å‹•  ->  å¯åŠ¨
+	uint8_t aBoot[] = { 0xC6, 0xF4, 0xB6, 0xAF, 0x00 };
+	Rut::RxHook::SysMemWrite((void*)(g_adExeBase + 0x1B92D4), aBoot, sizeof(aBoot));
 
-	//½KÁË  -> ÍË³ö
-	static UCHAR aExit[] = { 0xCD, 0xCB, 0xB3, 0xF6, 0x00 };
-	TDA::MemX::WriteMemory((LPVOID)(g_dwExeBase + 0x1B92CC), aExit, sizeof(aExit));
+	//çµ‚äº†  -> é€€å‡º
+	uint8_t aExit[] = { 0xCD, 0xCB, 0xB3, 0xF6, 0x00 };
+	Rut::RxHook::SysMemWrite((void*)(g_adExeBase + 0x1B92CC), aExit, sizeof(aExit));
 }
 
-VOID PatchBracket()
+static void PatchBracket()
 {
-	g_dwBracketRaw = g_dwExeBase + 0x1DFCB;
-	g_dwBracketIS = g_dwExeBase + 0x1DFDC;
-	g_dwBracketNO = g_dwExeBase + 0x1DF6F;
-	TDA::MemX::WriteHookCode(g_dwBracketRaw, (DWORD)FixBracket, 5);
+	sg_adBracketIS = (void*)(g_adExeBase + 0x1DFDC);
+	sg_adBracketNO = (void*)(g_adExeBase + 0x1DF6F);
+	sg_adBracketEntry = (void*)(g_adExeBase + 0x1DFCB);
+	Rut::RxHook::SetHookCode_Jmp((void*)sg_adBracketEntry, FixBracket, 5);
 }
 
-VOID PatchCharset()
+static void PatchCharset()
 {
-	BYTE patchCharSet[] = { 0x86 }; // 0x80 - > 0x86
-	TDA::MemX::WriteMemory((LPVOID)(g_dwExeBase + 0x74D9F), patchCharSet, sizeof(patchCharSet));
+	uint8_t patchCharSet[] = { 0x86 }; // 0x80 - > 0x86
+	Rut::RxHook::SysMemWrite((void*)(g_adExeBase + 0x74D9F), patchCharSet, sizeof(patchCharSet));
 }
 
-VOID PatchGBKRangeTable()
+static void PatchGBKRangeTable()
 {
-	static unsigned char aTable[256] =
+	uint8_t aTable[256] =
 	{
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -331,13 +280,53 @@ VOID PatchGBKRangeTable()
 		0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00
 	};
 
-	TDA::MemX::WriteMemory((LPVOID)(g_dwExeBase + 0x1BF440), aTable, sizeof(aTable));// Code Range Table
+	Rut::RxHook::SysMemWrite((void*)(g_adExeBase + 0x1BF440), aTable, sizeof(aTable));// Code Range Table
 }
 
-VOID PatchGBK2Unicode()
+static void PatchGBK2Unicode()
 {
-	g_GBK2UnicodeRaw = g_dwExeBase + 0x55D29;
-	g_GBK2UnicodeRet = g_dwExeBase + 0x55D34;
-	TDA::MemX::WriteHookCode(g_GBK2UnicodeRaw, (DWORD)GBK2Unicode, 0xB);
+	sg_adFnGBK2UnicodeEntry = g_adExeBase + 0x55D29;
+	sg_adFnGBK2UnicodeReturn = g_adExeBase + 0x55D34;
+	Rut::RxHook::SetHookCode_Jmp((void*)sg_adFnGBK2UnicodeEntry, GBK2Unicode, 0xB);
 }
+
+
+
+static void StartHook()
+{
+	PatchMenu();
+	PatchUIText();
+	PatchBracket();
+	PatchCharset();
+	PatchGBK2Unicode();
+	PatchGBKRangeTable();
+	//PatchCharacterName(); // If no change the character name there would be no need to call this func
+	//ScriptFileRedirection(); //script.dat -> scrtipt.cn
+
+	ACV::VFS::SetHookFolder("./HanaHimeVFB_cn/");
+	ACV::VFS::SetHook((uint32_t)g_adExeBase + 0xBC340, (uint32_t)g_adExeBase + 0xCC1C0, (uint32_t)g_adExeBase + 0xB3B10);
+
+	Rut::RxHook::HookCreateFontIndirectA(0x86, "é»‘ä½“");
+	Rut::RxHook::HookTitleExA("æºæœ„å½®å½ˆå‚‘å åå‚åä¹•å‚å‚«1.00", "é­”æ³•å°‘å¥³ã¾ã˜ã‹ã‚‹ã‚ãƒ¼ã‚Šã‚“1.00");
+}
+
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
+{
+	switch (ul_reason_for_call)
+	{
+	case DLL_PROCESS_ATTACH:
+		StartHook();
+		break;
+	case DLL_THREAD_ATTACH:
+		break;
+	case DLL_THREAD_DETACH:
+		break;
+	case DLL_PROCESS_DETACH:
+		break;
+	}
+	return TRUE;
+}
+
+void __declspec(dllexport) DirA() {}
+
 

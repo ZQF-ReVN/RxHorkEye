@@ -1,9 +1,9 @@
-#pragma once
+﻿#pragma once
 #include <string>
 #include <vector>
 #include <list>
 
-namespace ACV1
+namespace ACV::Text
 {
 	class TextEditor
 	{

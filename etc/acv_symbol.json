@@ -1,0 +1,508 @@
+{
+    "game_title": "宿星のガールフレンド 芙慈子編",
+    "game_version": "1.0",
+    "game_engine": "ACV",
+    "export_time": "2023-11-23 00:19:20.067456",
+    "func_list": [
+        {
+            "name": "ACV::STD::String::Add",
+            "addr": "0x427fb0"
+        },
+        {
+            "name": "ACV::STD::String::Add_",
+            "addr": "0x428030"
+        },
+        {
+            "name": "ACV::STD::String::428090",
+            "addr": "0x428090"
+        },
+        {
+            "name": "ACV::Compile::Free",
+            "addr": "0x428170"
+        },
+        {
+            "name": "ACV::UnorderedMap::New_",
+            "addr": "0x4285f0"
+        },
+        {
+            "name": "ACV::VFS::Script::New_Obj",
+            "addr": "0x428760"
+        },
+        {
+            "name": "ACV::UnorderedMap::Add_Char",
+            "addr": "0x428820"
+        },
+        {
+            "name": "ACV::STD::String::428A20",
+            "addr": "0x428a20"
+        },
+        {
+            "name": "ACV::VM::RegFunc",
+            "addr": "0x428e90"
+        },
+        {
+            "name": "ACV::Run",
+            "addr": "0x4291d0"
+        },
+        {
+            "name": "ACV::STD::String::42A0D0",
+            "addr": "0x42a0d0"
+        },
+        {
+            "name": "ACV::STD::String::Free",
+            "addr": "0x42a3b0"
+        },
+        {
+            "name": "ACV::STD::String::Error",
+            "addr": "0x42a410"
+        },
+        {
+            "name": "ACV::STD::String::Error_2",
+            "addr": "0x42a420"
+        },
+        {
+            "name": "ACV::STD::String::42A570",
+            "addr": "0x42a570"
+        },
+        {
+            "name": "ACV::STD::String::Ctor_2",
+            "addr": "0x42a640"
+        },
+        {
+            "name": "ACV::STD::String::42A730",
+            "addr": "0x42a730"
+        },
+        {
+            "name": "ACV::STD::String::Ctor",
+            "addr": "0x42a810"
+        },
+        {
+            "name": "ACV::UnorderedMap::KeyExist_",
+            "addr": "0x42aab0"
+        },
+        {
+            "name": "ACV::STD::String::42AF60",
+            "addr": "0x42af60"
+        },
+        {
+            "name": "ACV::STD::String::42B0D0",
+            "addr": "0x42b0d0"
+        },
+        {
+            "name": "ACV::UnorderedMap::42EF90",
+            "addr": "0x42ef90"
+        },
+        {
+            "name": "ACV::UnorderedMap::42F060",
+            "addr": "0x42f060"
+        },
+        {
+            "name": "ACV::UnorderedMap::Add_EntryObj",
+            "addr": "0x42f330"
+        },
+        {
+            "name": "ACV::UnorderedMap::Check",
+            "addr": "0x436cd0"
+        },
+        {
+            "name": "ACV::UnorderedMap::KeyExist",
+            "addr": "0x436d70"
+        },
+        {
+            "name": "ACV::VFS::Video::Load",
+            "addr": "0x43e890"
+        },
+        {
+            "name": "ACV::Index::Check",
+            "addr": "0x440790"
+        },
+        {
+            "name": "ACV::Hash::CRC64",
+            "addr": "0x444b80"
+        },
+        {
+            "name": "ACV::Win32::Free",
+            "addr": "0x4454d0"
+        },
+        {
+            "name": "ACV::VM::SetRenderTarget2",
+            "addr": "0x454b60"
+        },
+        {
+            "name": "ACV::Hash::CRC32",
+            "addr": "0x456fb0"
+        },
+        {
+            "name": "ACV::VM::addFont_Do",
+            "addr": "0x460560"
+        },
+        {
+            "name": "ACV::ToWChar",
+            "addr": "0x465d50"
+        },
+        {
+            "name": "ACV::UnorderedMap::New_Obj_",
+            "addr": "0x469730"
+        },
+        {
+            "name": "ACV::STD::String::Free_",
+            "addr": "0x469a60"
+        },
+        {
+            "name": "ACV::VM::AddFont",
+            "addr": "0x46a7e0"
+        },
+        {
+            "name": "ACV::VM::AddFont_1",
+            "addr": "0x46a870"
+        },
+        {
+            "name": "ACV::VM::addFontF",
+            "addr": "0x46a8b0"
+        },
+        {
+            "name": "ACV::VFS::Movie::Load",
+            "addr": "0x46ae80"
+        },
+        {
+            "name": "ACV::VM::clearMess2",
+            "addr": "0x46bbc0"
+        },
+        {
+            "name": "ACV::VM::clearMess",
+            "addr": "0x46c580"
+        },
+        {
+            "name": "ACV::VM::clearMess_0",
+            "addr": "0x46c680"
+        },
+        {
+            "name": "ACV::VM::clearMess_1",
+            "addr": "0x46c6e0"
+        },
+        {
+            "name": "ACV::VM::deleteSave",
+            "addr": "0x46ca40"
+        },
+        {
+            "name": "ACV::VM::effect",
+            "addr": "0x46d0c0"
+        },
+        {
+            "name": "ACV::VM::eraseBtn",
+            "addr": "0x46d500"
+        },
+        {
+            "name": "ACV::VM::eventWait",
+            "addr": "0x46d8e0"
+        },
+        {
+            "name": "ACV::VM::eventWait_0",
+            "addr": "0x46da30"
+        },
+        {
+            "name": "ACV::VM::eventWait_1",
+            "addr": "0x46db40"
+        },
+        {
+            "name": "ACV::VM::eventWait_2",
+            "addr": "0x46dcf0"
+        },
+        {
+            "name": "ACV::VM::executeUnity_0",
+            "addr": "0x46de90"
+        },
+        {
+            "name": "ACV::VM::existFile2",
+            "addr": "0x46def0"
+        },
+        {
+            "name": "ACV::VM::existFile2_0",
+            "addr": "0x46df90"
+        },
+        {
+            "name": "ACV::VM::existSave",
+            "addr": "0x46e050"
+        },
+        {
+            "name": "ACV::VM::existStretch",
+            "addr": "0x46e180"
+        },
+        {
+            "name": "ACV::VM::fileDownload",
+            "addr": "0x46e2b0"
+        },
+        {
+            "name": "ACV::VM::fileJump",
+            "addr": "0x46e4d0"
+        },
+        {
+            "name": "ACV::VM::getAlreadyReadAutoSkip",
+            "addr": "0x46e9d0"
+        },
+        {
+            "name": "ACV::VM::getTag",
+            "addr": "0x472f10"
+        },
+        {
+            "name": "ACV::VM::getTagLog",
+            "addr": "0x472f60"
+        },
+        {
+            "name": "ACV::Index::Check_0",
+            "addr": "0x47e990"
+        },
+        {
+            "name": "ACV::VM::Init",
+            "addr": "0x488a00"
+        },
+        {
+            "name": "ACV::VM::setFontFileDefault",
+            "addr": "0x48c7c0"
+        },
+        {
+            "name": "ACV::VM::setMasterVolume",
+            "addr": "0x48d160"
+        },
+        {
+            "name": "ACV::VM::setSaveFlag",
+            "addr": "0x48e820"
+        },
+        {
+            "name": "ACV::Compile::0x4C1150",
+            "addr": "0x4c1150"
+        },
+        {
+            "name": "ACV::UnorderedMap::New_Obj",
+            "addr": "0x4c1c10"
+        },
+        {
+            "name": "ACV::UnorderedMap::GetEntry",
+            "addr": "0x4c2860"
+        },
+        {
+            "name": "ACV::UnorderedMap::Add",
+            "addr": "0x4c37d0"
+        },
+        {
+            "name": "ACV::STD::String::4C3A90",
+            "addr": "0x4c3a90"
+        },
+        {
+            "name": "ACV::VFS::Data::Decode",
+            "addr": "0x4c3b20"
+        },
+        {
+            "name": "ACV::Script::Compile::Line",
+            "addr": "0x4c4900"
+        },
+        {
+            "name": "ACV::UnorderedMap::New_Node",
+            "addr": "0x4c5820"
+        },
+        {
+            "name": "ACV::VM::existFile",
+            "addr": "0x4c7070"
+        },
+        {
+            "name": "ACV::VM::getParam",
+            "addr": "0x4c8fa0"
+        },
+        {
+            "name": "ACV::Alloc_0",
+            "addr": "0x4caa30"
+        },
+        {
+            "name": "ACV::VM::labelExist",
+            "addr": "0x4cb900"
+        },
+        {
+            "name": "ACV::VFS::SaveData::Load",
+            "addr": "0x4cbb60"
+        },
+        {
+            "name": "ACV::VFS::Lua::Read",
+            "addr": "0x4cc020"
+        },
+        {
+            "name": "ACV::VFS::Script::Load",
+            "addr": "0x4cc0e0"
+        },
+        {
+            "name": "ACV::VM::loadlibr",
+            "addr": "0x4cc4e0"
+        },
+        {
+            "name": "ACV::Script::LoadLua",
+            "addr": "0x4cd320"
+        },
+        {
+            "name": "ACV::VM::match",
+            "addr": "0x4cded0"
+        },
+        {
+            "name": "ACV::VFS::OpenFile",
+            "addr": "0x4ce8e0"
+        },
+        {
+            "name": "ACV::VFS::Script::ReadIndex",
+            "addr": "0x4cfcc0"
+        },
+        {
+            "name": "ACV::VFS::Pack::ReadIndex",
+            "addr": "0x4cfe20"
+        },
+        {
+            "name": "ACV::Compile::Parser",
+            "addr": "0x4d0110"
+        },
+        {
+            "name": "ACV::VFS::Script::Read",
+            "addr": "0x4d04d0"
+        },
+        {
+            "name": "ACV::Script::Compile",
+            "addr": "0x4d0af0"
+        },
+        {
+            "name": "ACV::UnorderedMap::Add_Obj",
+            "addr": "0x4d1a10"
+        },
+        {
+            "name": "ACV::VM::saveFile",
+            "addr": "0x4d20d0"
+        },
+        {
+            "name": "ACV::VM::FuncInit",
+            "addr": "0x4d24c0"
+        },
+        {
+            "name": "ACV::VM::setFileList",
+            "addr": "0x4d3a20"
+        },
+        {
+            "name": "ACV::VM::setText",
+            "addr": "0x4d4000"
+        },
+        {
+            "name": "ACV::VM::sortText",
+            "addr": "0x4d4230"
+        },
+        {
+            "name": "ACV::VM::split",
+            "addr": "0x4d4470"
+        },
+        {
+            "name": "ACV::VM::split_0",
+            "addr": "0x4d4680"
+        },
+        {
+            "name": "ACV::Compile::0x4D48BD",
+            "addr": "0x4d48b0"
+        },
+        {
+            "name": "ACV::VM::splitU",
+            "addr": "0x4d5410"
+        },
+        {
+            "name": "ACV::Script::LoadLua2",
+            "addr": "0x4d5770"
+        },
+        {
+            "name": "ACV::VM::stoi16",
+            "addr": "0x4d6610"
+        },
+        {
+            "name": "ACV::VM::string",
+            "addr": "0x4d66b0"
+        },
+        {
+            "name": "ACV::VM::undefsub",
+            "addr": "0x4d72a0"
+        },
+        {
+            "name": "ACV::VM::variableErase",
+            "addr": "0x4d7420"
+        },
+        {
+            "name": "ACV::VM::variableErase_0",
+            "addr": "0x4d7620"
+        },
+        {
+            "name": "ACV::VFS::Media::Read",
+            "addr": "0x4d8640"
+        },
+        {
+            "name": "ACV::Format::Path",
+            "addr": "0x4d96e0"
+        },
+        {
+            "name": "ACV::DeleteFile",
+            "addr": "0x4da170"
+        },
+        {
+            "name": "ACV::FileExist",
+            "addr": "0x4db610"
+        },
+        {
+            "name": "ACV::PathCheck",
+            "addr": "0x4dc0e0"
+        },
+        {
+            "name": "ACV::ReadUint8",
+            "addr": "0x4dc130"
+        },
+        {
+            "name": "ACV::ReadUint32",
+            "addr": "0x4dc150"
+        },
+        {
+            "name": "ACV::ReadUint64",
+            "addr": "0x4dc170"
+        },
+        {
+            "name": "ACV::StrCpy",
+            "addr": "0x4dca00"
+        },
+        {
+            "name": "ACV::Hash::CRC64_2",
+            "addr": "0x4dda10"
+        },
+        {
+            "name": "ACV::Hash::CRC32_2",
+            "addr": "0x4de190"
+        },
+        {
+            "name": "ACV::ZLIB_Decompress",
+            "addr": "0x537760"
+        },
+        {
+            "name": "ACV::ZLIB::537840",
+            "addr": "0x537840"
+        },
+        {
+            "name": "ACV::ZLIB::538E50",
+            "addr": "0x538e50"
+        },
+        {
+            "name": "ACV::ZLIB::538EA0",
+            "addr": "0x538ea0"
+        },
+        {
+            "name": "ACV::ZLIB::538F80",
+            "addr": "0x538f80"
+        },
+        {
+            "name": "ACV::STD::Error",
+            "addr": "0x5455c9"
+        },
+        {
+            "name": "ACV::Lua::Compile",
+            "addr": "0x56a6a0"
+        },
+        {
+            "name": "ACV::Alloc_1",
+            "addr": "0x59644b"
+        }
+    ]
+}

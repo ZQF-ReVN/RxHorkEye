@@ -12,7 +12,7 @@ namespace ACV::VFS
 	static char sg_aHookPath[MAX_PATH] = "./Hook/";
 	static Fn_VFSOpenFile sg_fnVFSOpenFile = nullptr;
 	static Fn_VFSScriptRead sg_fnVFSScriptRead = nullptr;
-	static Fn_CompileScript sg_fnCompileScript = nullptr;
+	static Fn_ScriptCompile sg_fnScriptCompile = nullptr;
 
 
 	static FILE* __cdecl VFSOpenFile_Hook(const char* cpPath, uint32_t* pSize_Ret, ACV_Hash* pHash_Ret)
@@ -31,13 +31,13 @@ namespace ACV::VFS
 		return sg_fnVFSScriptRead(nHashL, nHashH, pCompile);
 	}
 
-	static bool __cdecl CompileScript_Hook(const char* pScript, uint32_t nScriptBytes, Fn_CompileLine fnCompileLine, uint32_t* pCompile, const char* cpScriptFolder)
+	static bool __cdecl ScriptCompile_Hook(const char* pScript, uint32_t nScriptBytes, Fn_ScriptCompileLine fnScriptCompileLine, uint32_t* pCompile, const char* cpScriptFolder)
 	{
 		if (sg_ScriptHash.uiL || sg_ScriptHash.uiH)
 		{
 			// Gen Script Hash Str
 			char hash_str[0x20];
-			sprintf_s(hash_str, 0x20, "[%08X]-[%08X]", sg_ScriptHash.uiL, sg_ScriptHash.uiH);
+			::sprintf_s(hash_str, 0x20, "[%08X]-[%08X]", sg_ScriptHash.uiL, sg_ScriptHash.uiH);
 			sg_ScriptHash.uiL = 0;
 			sg_ScriptHash.uiH = 0;
 
@@ -51,26 +51,26 @@ namespace ACV::VFS
 			if (::GetFileAttributesA(full_script_path) != INVALID_FILE_ATTRIBUTES)
 			{
 				Rut::RxMem::Auto script_data{ full_script_path };
-				return sg_fnCompileScript((char*)script_data.GetPtr(), script_data.GetSize(), fnCompileLine, pCompile, cpScriptFolder);
+				return sg_fnScriptCompile((char*)script_data.GetPtr(), script_data.GetSize(), fnScriptCompileLine, pCompile, cpScriptFolder);
 			}
 		}
-		return sg_fnCompileScript(pScript, nScriptBytes, fnCompileLine, pCompile, cpScriptFolder);
+		return sg_fnScriptCompile(pScript, nScriptBytes, fnScriptCompileLine, pCompile, cpScriptFolder);
 	}
 
 
 
-	void SetResHook(uint32_t fnVFSOpenFile, uint32_t fnVFSScriptRead, uint32_t fnCompileScript)
+	void SetHook(uint32_t fnOpenFile, uint32_t fnScriptRead, uint32_t fnScriptCompile)
 	{
-		sg_fnVFSOpenFile = (Fn_VFSOpenFile)fnVFSOpenFile;
-		sg_fnVFSScriptRead = (Fn_VFSScriptRead)fnVFSScriptRead;
-		sg_fnCompileScript = (Fn_CompileScript)fnCompileScript;
+		sg_fnVFSOpenFile = (Fn_VFSOpenFile)fnOpenFile;
+		sg_fnVFSScriptRead = (Fn_VFSScriptRead)fnScriptRead;
+		sg_fnScriptCompile = (Fn_ScriptCompile)fnScriptCompile;
 
 		Rut::RxHook::DetourAttachFunc(&sg_fnVFSOpenFile, VFSOpenFile_Hook);
 		Rut::RxHook::DetourAttachFunc(&sg_fnVFSScriptRead, VFSScriptRead_Hook);
-		Rut::RxHook::DetourAttachFunc(&sg_fnCompileScript, CompileScript_Hook);
+		Rut::RxHook::DetourAttachFunc(&sg_fnScriptCompile, ScriptCompile_Hook);
 	}
 
-	void SetResHookFolder(const char* cpFolder)
+	void SetHookFolder(const char* cpFolder)
 	{
 		::strcpy_s(sg_aHookPath, MAX_PATH, cpFolder);
 	}

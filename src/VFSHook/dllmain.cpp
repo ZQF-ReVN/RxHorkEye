@@ -3,35 +3,14 @@
 #include "../../lib/ACV/VFS.h"
 
 
-VOID Start()
+static void Start()
 {
 	HMODULE exe_base = GetModuleHandleW(NULL);
-	ACV::VFS::SetResHook((uint32_t)exe_base + 0xCE8E0, (uint32_t)exe_base + 0xD04D0, (uint32_t)exe_base + 0xD0AF0);
-	//Attention!! Only one of the three functions can be called at a time
-	//SetFileDump("Dump/");
-	//SetFileExtract("Extract/");
-	//SetFileHook("FileHook/");
-	
-	/*
-	Game:		ハナヒメ＊アブソリュート！
-	LoadScript:	rva:0xCE9B0
-	ProcScript:	rva:0xB66E0
+	// 宿星のガールフレンド 芙慈子編 PKG 1.0
+	// ACV::VFS::SetHook((uint32_t)exe_base + 0xCE8E0, (uint32_t)exe_base + 0xD04D0, (uint32_t)exe_base + 0xD0AF0);
 
-	Game:		魔法少女まじかるあーりん
-	LoadScript:	rva:0xCC1C0
-	ProcScript:	rva:0xB3B10
-	
-	Game:		我が姫君に栄冠を
-	LoadScript:	rva:0xD18B0
-
-
-	Game:		我が姫君に栄冠をFD
-	LoadScript:	rva:0xD30F0
-
-	*/
-
-	//SetScriptDump(0xCE9B0, 0xB66E0, "FileHook/Script/");
-	//SetScriptHook(0xCE9B0, 0xB66E0, "Dump/Script/");
+	// 魔法少女まじかるあーりん PKG 1.0
+	ACV::VFS::SetHook((uint32_t)exe_base + 0xBC340, (uint32_t)exe_base + 0xCC1C0, (uint32_t)exe_base + 0xB3B10);
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
@@ -51,4 +30,4 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
 	return TRUE;
 }
 
-VOID __declspec(dllexport) DirA() {}
+void __declspec(dllexport) DirA() {}

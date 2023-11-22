@@ -11,8 +11,8 @@
 namespace ACV::VFS
 {
 	static char sg_aExtractFolder[MAX_PATH] = "./Extract/";
+	static Fn_VFSLuaRead sg_fnVFSLuaRead = nullptr;
 	static Fn_VFSMediaRead sg_fnVFSMediaRead = nullptr;
-	static Fn_VFSLuaScriptRead sg_fnVFSLuaScriptRead = nullptr;
 
 	static void ExtractThread()
 	{
@@ -40,7 +40,7 @@ namespace ACV::VFS
 				char full_extract_path[MAX_PATH];
 				strcpy_s(full_extract_path, MAX_PATH, sg_aExtractFolder); strcat_s(full_extract_path, MAX_PATH, msPath.data());
 
-				if (sg_fnVFSLuaScriptRead(msPath.data(), &std_string))
+				if (sg_fnVFSLuaRead(msPath.data(), &std_string))
 				{
 					Rut::RxFile::SaveFileViaPath(full_extract_path, (std_string.uiLen > 15) ? (std_string.pStr) : (std_string.aStr), std_string.uiLen);
 					return true;
@@ -76,10 +76,10 @@ namespace ACV::VFS
 	}
 
 
-	void SetExtract(uint32_t fnVFSLoadMedia, uint32_t fnVFSLoadLuaScript)
+	void SetExtract(uint32_t fnVFSLoadMedia, uint32_t fnVFSLuaRead)
 	{
 		sg_fnVFSMediaRead = (Fn_VFSMediaRead)fnVFSLoadMedia;
-		sg_fnVFSLuaScriptRead = (Fn_VFSLuaScriptRead)fnVFSLoadLuaScript;
+		sg_fnVFSLuaRead = (Fn_VFSLuaRead)fnVFSLuaRead;
 
 		Rut::RxPath::MakeDirViaPath(sg_aExtractFolder);
 		Rut::RxConsole::Alloc(L"ACV Extract", true, false);

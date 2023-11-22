@@ -12,7 +12,7 @@ link_libraries(Rut RxHook)
 list(APPEND SRC_FILE 
     "${CMAKE_CURRENT_SOURCE_DIR}/src/ACV_VFS_Dump.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/ACV_VFS_Hook.cpp" 
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/ACV_VFS_Extract.cpp")
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/ACV_VFS_Extract.cpp" )
 
 # Set Library
 add_library(${PROJECT_NAME} "${SRC_FILE}")

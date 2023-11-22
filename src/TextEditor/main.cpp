@@ -1,10 +1,8 @@
-#include <list>
+﻿#include <list>
 #include <iostream>
 #include <algorithm>
 
 #include "ACV1TextEditor.h"
-#include "../TDA/EnumFiles.h"
-#include "../TDA/ConsoleX.h"
 
 int main()
 {

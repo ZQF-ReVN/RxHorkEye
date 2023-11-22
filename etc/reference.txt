@@ -1,0 +1,2 @@
+https://github.com/vn-tools/arc_unpacker/issues/41
+https://github.com/vn-tools/whale-tools

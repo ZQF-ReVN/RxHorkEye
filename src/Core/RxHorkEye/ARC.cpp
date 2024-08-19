@@ -18,17 +18,6 @@ namespace ZQF::RxHorkEye
 
     }
 
-    auto ARC::FindFileNameViaCrc64(const std::uint64_t nCrc) -> std::string_view
-    {
-        const auto ite = m_umpFileName.find(nCrc);
-        return ite != m_umpFileName.end() ? ite->second : "";
-    }
-
-    auto ARC::LoadFileName(const std::string_view /*msLitsFile*/)
-    {
-
-    }
-
     auto ARC::Export(const std::string_view msPackPath, const std::string_view msSaveDir) -> bool
     {
         ZxFile ifs{ msPackPath, ZxFile::OpenMod::ReadSafe };
@@ -61,7 +50,7 @@ namespace ZQF::RxHorkEye
         std::string path_cache;
         for (auto& entry : index_mem.Span<ARC_Entry>())
         {
-            const auto file_name = this->FindFileNameViaCrc64(entry.m_nNameCrc64);
+            const auto file_name = m_HashStrTable.Find(entry.m_nNameCrc64);
             if (file_name.empty())
             {
                 std::println("extarct failed: {:018X} -> not find file name", entry.m_nNameCrc64);

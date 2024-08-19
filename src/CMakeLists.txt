@@ -12,7 +12,8 @@ endif()
 # Set Source File Path
 list(APPEND ReVN_RxHorkEye_Core_Src_Files
     "Core/RxHorkEye/ARC.cpp"
-    "Core/RxHorkEye/Cryptor.cpp")
+    "Core/RxHorkEye/Cryptor.cpp"
+    "Core/RxHorkEye/HashStrTable.cpp")
 
 # Set Library
 add_library(ReVN_RxHorkEye_Core ${ReVN_RxHorkEye_Core_Src_Files})

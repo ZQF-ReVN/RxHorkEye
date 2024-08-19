@@ -1,6 +1,15 @@
-﻿################################################################################
-# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
-################################################################################
+# Xmake cache
+.xmake/
+build/
+vsxmake2022/
 
-/.out
-/.vs
+# VS
+.vs/
+
+# VSCode
+.vscode/.cache/
+.vscode/compile_commands.json
+
+# MacOS Cache
+.DS_Store
+

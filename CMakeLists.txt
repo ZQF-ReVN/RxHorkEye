@@ -1,32 +1,19 @@
-# Main CMakeLists
-cmake_minimum_required(VERSION 3.12)
+# RxHorkEye Main
+cmake_minimum_required(VERSION 3.25)
 
 # Project Name
-project(HorkEyeTools)
+project(ReVN_RxHorkEye_Main)
 
-# MSVC Setting
-if(MSVC)
-    add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/source-charset:utf-8>")
-    add_definitions(-DUNICODE -D_UNICODE)
+# On Test Preset
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+    include(CMakeMycfg.cmake)
+    include(CMakeMypkg.cmake)
 endif()
 
-# Value Define
-set(LIB_DIR "${CMAKE_CURRENT_LIST_DIR}/lib")
-set(THIRD_DIR "${CMAKE_CURRENT_LIST_DIR}/third")
+# Source
+add_subdirectory(src)
 
-# Out Path
-set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_LIST_DIR}/.out/exe)
-set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_LIST_DIR}/.out/lib)
-
-# Library
-     add_subdirectory("lib/HorkEye")
-     add_subdirectory("lib/Rut")
-     add_subdirectory("lib/RxHook")
-
-# Project
-    add_subdirectory("src/VFSHook")
-    add_subdirectory("src/VFSDump")
-    add_subdirectory("src/VFSExtract")
-    add_subdirectory("src/HanaHime_cn")
-    add_subdirectory("src/HanaHimeVFB_cn")
-    add_subdirectory("src/ScriptRename")
+# On Test Config
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+    add_subdirectory(test)
+endif()

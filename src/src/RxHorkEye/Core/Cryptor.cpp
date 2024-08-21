@@ -1,4 +1,4 @@
-#include <RxHorkEye/Cryptor.h>
+#include <RxHorkEye/Core/Cryptor.h>
 
 
 namespace ZQF::RxHorkEye

@@ -1,7 +1,7 @@
 #pragma once
 #include <cstdint>
 #include <string_view>
-#include <RxHorkEye/HashStrTable.h>
+#include <RxHorkEye/Core/HashStrTable.h>
 
 
 namespace ZQF::RxHorkEye

@@ -1,6 +1,6 @@
-#include <RxHorkEye/ARC.h>
-#include <RxHorkEye/Type.h>
-#include <RxHorkEye/Cryptor.h>
+#include <RxHorkEye/Core/ARC.h>
+#include <RxHorkEye/Core/Type.h>
+#include <RxHorkEye/Core/Cryptor.h>
 #include <ZxMem/ZxMem.h>
 #include <ZxFile/ZxFile.h>
 #include <ZxFS/Core.h>
@@ -91,20 +91,22 @@ namespace ZQF::RxHorkEye
         {
             const auto index_bytes = ARC_Entry::Sizebytes() * file_path_list.size();
             ZxMem index_mem{ index_bytes };
-            std::size_t foa = header.Sizebytes() + index_bytes;
+            std::uint32_t foa = header.Sizebytes() + index_bytes;
             for (auto&& [path, entry] : std::views::zip(file_path_list, index_mem.Span<ARC_Entry>()))
             {
                 const auto file_size_opt = ZxFS::FileSize(path);
                 if (file_size_opt.has_value() == false) { throw std::runtime_error(std::format("RxHorkEye::ARC::Import(): get file size error -> {}", path)); }
 
+                const auto file_size_u32 = static_cast<std::uint32_t>(*file_size_opt);
+
                 entry.m_nNameCrc64 = Cryptor::CRC64(path);
                 entry.m_nType = 1;
-                entry.m_nFOA = static_cast<std::uint32_t>(foa);
-                entry.m_nBytesEnc = static_cast<std::uint32_t>(*file_size_opt);
+                entry.m_nFOA = foa;
+                entry.m_nBytesEnc = file_size_u32;
                 entry.m_nBytesRaw = 0;
                 entry.DecInfo(header.GetFileDataKey(), path);
 
-                foa += *file_size_opt;
+                foa += file_size_u32;
             }
 
             ofs << index_mem.Span();
